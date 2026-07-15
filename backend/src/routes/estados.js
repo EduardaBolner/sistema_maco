@@ -38,4 +38,38 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.put('/:id', async (req, res, next) => {
+    try {
+        const { ds_estado, id_pais } = req.body;
+        if (!ds_estado || !ds_estado.trim()) {
+            return res.status(400).json({ erro: 'ds_estado é obrigatório' });
+        }
+        const result = await pool.query(
+            'UPDATE estado SET ds_estado = $1, id_pais = $2 WHERE id_estado = $3 RETURNING id_estado, ds_estado, id_pais',
+            [ds_estado.trim(), id_pais || null, req.params.id]
+        );
+        if (!result.rows[0]) {
+            return res.status(404).json({ erro: 'Estado não encontrado' });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const result = await pool.query('DELETE FROM estado WHERE id_estado = $1', [req.params.id]);
+        if (!result.rowCount) {
+            return res.status(404).json({ erro: 'Estado não encontrado' });
+        }
+        res.status(204).send();
+    } catch (err) {
+        if (err.code === '23503') {
+            return res.status(409).json({ erro: 'Não é possível excluir: existem Orientes vinculados a este Estado.' });
+        }
+        next(err);
+    }
+});
+
 module.exports = router;

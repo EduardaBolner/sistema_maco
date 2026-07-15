@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('../db');
+const { exigirAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -58,7 +59,22 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.post('/', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
+    try {
+        const result = await pool.query(
+            `SELECT ${CAMPOS_MACOM} ${JOINS_MACOM} WHERE m.id_macom = $1`,
+            [req.params.id]
+        );
+        if (!result.rows[0]) {
+            return res.status(404).json({ erro: 'Maçom não encontrado' });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/', exigirAdmin, async (req, res, next) => {
     try {
         const {
             cim, nm_macom, id_loja, id_grau,
@@ -90,6 +106,65 @@ router.post('/', async (req, res, next) => {
     } catch (err) {
         if (err.code === '23505') {
             return res.status(409).json({ erro: 'Já existe um Maçom cadastrado com este CIM' });
+        }
+        next(err);
+    }
+});
+
+router.put('/:id', exigirAdmin, async (req, res, next) => {
+    try {
+        const {
+            cim, nm_macom, id_loja, id_grau,
+            dt_nascimento, dt_iniciacao, dt_elevacao, dt_exaltacao,
+            nr_ddd, nr_celular, ds_endereco
+        } = req.body;
+
+        if (!cim) {
+            return res.status(400).json({ erro: 'cim é obrigatório' });
+        }
+        if (!nm_macom || !nm_macom.trim()) {
+            return res.status(400).json({ erro: 'nm_macom é obrigatório' });
+        }
+
+        const atualizado = await pool.query(
+            `UPDATE macons SET
+                cim = $1, nm_macom = $2, id_loja = $3, id_grau = $4,
+                dt_nascimento = $5, dt_iniciacao = $6, dt_elevacao = $7, dt_exaltacao = $8,
+                nr_ddd = $9, nr_celular = $10, ds_endereco = $11
+             WHERE id_macom = $12
+             RETURNING id_macom`,
+            [cim, nm_macom.trim(), id_loja || null, id_grau || null,
+             dt_nascimento || null, dt_iniciacao || null, dt_elevacao || null, dt_exaltacao || null,
+             nr_ddd || null, nr_celular || null, ds_endereco || null, req.params.id]
+        );
+
+        if (!atualizado.rows[0]) {
+            return res.status(404).json({ erro: 'Maçom não encontrado' });
+        }
+
+        const result = await pool.query(
+            `SELECT ${CAMPOS_MACOM} ${JOINS_MACOM} WHERE m.id_macom = $1`,
+            [req.params.id]
+        );
+        res.json(result.rows[0]);
+    } catch (err) {
+        if (err.code === '23505') {
+            return res.status(409).json({ erro: 'Já existe um Maçom cadastrado com este CIM' });
+        }
+        next(err);
+    }
+});
+
+router.delete('/:id', exigirAdmin, async (req, res, next) => {
+    try {
+        const resultado = await pool.query('DELETE FROM macons WHERE id_macom = $1', [req.params.id]);
+        if (!resultado.rowCount) {
+            return res.status(404).json({ erro: 'Maçom não encontrado' });
+        }
+        res.status(204).send();
+    } catch (err) {
+        if (err.code === '23503') {
+            return res.status(409).json({ erro: 'Não é possível excluir: este Maçom possui um usuário de acesso vinculado.' });
         }
         next(err);
     }

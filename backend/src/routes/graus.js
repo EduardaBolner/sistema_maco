@@ -38,4 +38,38 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.put('/:id', async (req, res, next) => {
+    try {
+        const { ds_grau, id_ritu } = req.body;
+        if (!ds_grau || !ds_grau.trim()) {
+            return res.status(400).json({ erro: 'ds_grau é obrigatório' });
+        }
+        const result = await pool.query(
+            'UPDATE grau SET ds_grau = $1, id_ritu = $2 WHERE id_grau = $3 RETURNING id_grau, ds_grau, id_ritu',
+            [ds_grau.trim(), id_ritu || null, req.params.id]
+        );
+        if (!result.rows[0]) {
+            return res.status(404).json({ erro: 'Grau não encontrado' });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const result = await pool.query('DELETE FROM grau WHERE id_grau = $1', [req.params.id]);
+        if (!result.rowCount) {
+            return res.status(404).json({ erro: 'Grau não encontrado' });
+        }
+        res.status(204).send();
+    } catch (err) {
+        if (err.code === '23503') {
+            return res.status(409).json({ erro: 'Não é possível excluir: existem Maçons vinculados a este Grau.' });
+        }
+        next(err);
+    }
+});
+
 module.exports = router;

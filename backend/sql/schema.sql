@@ -1,14 +1,6 @@
 -- Sistema de Cadastros - Grande Loja Regular do Rio Grande do Sul
 -- Schema relacional conforme ER fornecido pelo cliente
 
-CREATE TABLE usuario (
-    id_usuario   SERIAL PRIMARY KEY,
-    nm_usuario   VARCHAR(150) NOT NULL,
-    login        VARCHAR(60) NOT NULL UNIQUE,
-    senha_hash   VARCHAR(100) NOT NULL,
-    dt_criacao   TIMESTAMP NOT NULL DEFAULT now()
-);
-
 CREATE TABLE pais (
     id_pais     SERIAL PRIMARY KEY,
     ds_pais     VARCHAR(120) NOT NULL
@@ -78,3 +70,14 @@ CREATE TABLE macons (
 CREATE INDEX idx_macons_id_loja ON macons(id_loja);
 CREATE INDEX idx_macons_id_grau ON macons(id_grau);
 CREATE INDEX idx_macons_cim ON macons(cim);
+
+CREATE TABLE usuario (
+    id_usuario   SERIAL PRIMARY KEY,
+    nm_usuario   VARCHAR(150) NOT NULL,
+    login        VARCHAR(60) NOT NULL UNIQUE,
+    senha_hash   VARCHAR(100) NOT NULL,
+    papel        VARCHAR(20) NOT NULL DEFAULT 'admin',
+    id_macom     INTEGER REFERENCES macons(id_macom),
+    dt_criacao   TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_usuario_id_macom ON usuario(id_macom);

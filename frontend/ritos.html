@@ -15,7 +15,7 @@
         <main class="content">
 
             <div class="painel">
-                <h2>Cadastrar Rito</h2>
+                <h2 id="titulo-formulario">Cadastrar Rito</h2>
                 <div class="alerta erro" id="alerta-erro"></div>
                 <div class="alerta sucesso" id="alerta-sucesso"></div>
                 <form id="form-rito">
@@ -23,7 +23,10 @@
                         <label for="ds_ritu">Descrição do Rito</label>
                         <input type="text" id="ds_ritu" required>
                     </div>
-                    <button type="submit" class="btn">Salvar</button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="btn" id="botao-salvar">Salvar</button>
+                        <button type="button" class="btn btn-secundario" id="botao-cancelar" hidden>Cancelar edição</button>
+                    </div>
                 </form>
             </div>
 
@@ -32,7 +35,7 @@
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
-                            <tr><th>Descrição</th><th>Criado em</th></tr>
+                            <tr><th>Descrição</th><th>Criado em</th><th>Ações</th></tr>
                         </thead>
                         <tbody id="corpo-tabela"></tbody>
                     </table>

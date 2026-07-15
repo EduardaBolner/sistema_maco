@@ -13,7 +13,7 @@ router.post('/login', async (req, res, next) => {
         }
 
         const resultado = await pool.query(
-            'SELECT id_usuario, nm_usuario, login, senha_hash FROM usuario WHERE login = $1',
+            'SELECT id_usuario, nm_usuario, login, senha_hash, papel, id_macom FROM usuario WHERE login = $1',
             [login.trim()]
         );
         const usuario = resultado.rows[0];
@@ -28,12 +28,18 @@ router.post('/login', async (req, res, next) => {
         }
 
         const token = jwt.sign(
-            { id_usuario: usuario.id_usuario, login: usuario.login, nome: usuario.nm_usuario },
+            {
+                id_usuario: usuario.id_usuario,
+                login: usuario.login,
+                nome: usuario.nm_usuario,
+                papel: usuario.papel,
+                id_macom: usuario.id_macom
+            },
             process.env.JWT_SECRET,
             { expiresIn: '12h' }
         );
 
-        res.json({ token, nome: usuario.nm_usuario });
+        res.json({ token, nome: usuario.nm_usuario, papel: usuario.papel });
     } catch (err) {
         next(err);
     }

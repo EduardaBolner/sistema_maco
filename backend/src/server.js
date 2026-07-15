@@ -3,8 +3,10 @@ const express = require('express');
 const cors = require('cors');
 
 const exigirAutenticacao = require('./middleware/auth');
+const { exigirAdmin } = require('./middleware/auth');
 
 const authRouter = require('./routes/auth');
+const usuariosRouter = require('./routes/usuarios');
 const paisesRouter = require('./routes/paises');
 const estadosRouter = require('./routes/estados');
 const orientesRouter = require('./routes/orientes');
@@ -24,14 +26,18 @@ app.use('/auth', authRouter);
 
 app.use(exigirAutenticacao);
 
-app.use('/paises', paisesRouter);
-app.use('/estados', estadosRouter);
-app.use('/orientes', orientesRouter);
-app.use('/potencias', potenciasRouter);
-app.use('/ritos', ritosRouter);
-app.use('/graus', grausRouter);
-app.use('/lojas', lojasRouter);
+// Quadro de Membros: leitura liberada para qualquer usuário autenticado.
+// Escrita (POST/PUT/DELETE) e as demais entidades exigem papel admin.
 app.use('/macons', maconsRouter);
+
+app.use('/usuarios', exigirAdmin, usuariosRouter);
+app.use('/paises', exigirAdmin, paisesRouter);
+app.use('/estados', exigirAdmin, estadosRouter);
+app.use('/orientes', exigirAdmin, orientesRouter);
+app.use('/potencias', exigirAdmin, potenciasRouter);
+app.use('/ritos', exigirAdmin, ritosRouter);
+app.use('/graus', exigirAdmin, grausRouter);
+app.use('/lojas', exigirAdmin, lojasRouter);
 
 app.use((err, req, res, next) => {
     console.error(err);

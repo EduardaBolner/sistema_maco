@@ -39,4 +39,38 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.put('/:id', async (req, res, next) => {
+    try {
+        const { ds_oriente, id_estado } = req.body;
+        if (!ds_oriente || !ds_oriente.trim()) {
+            return res.status(400).json({ erro: 'ds_oriente é obrigatório' });
+        }
+        const result = await pool.query(
+            'UPDATE oriente SET ds_oriente = $1, id_estado = $2 WHERE id_oriente = $3 RETURNING id_oriente, ds_oriente, id_estado',
+            [ds_oriente.trim(), id_estado || null, req.params.id]
+        );
+        if (!result.rows[0]) {
+            return res.status(404).json({ erro: 'Oriente não encontrado' });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const result = await pool.query('DELETE FROM oriente WHERE id_oriente = $1', [req.params.id]);
+        if (!result.rowCount) {
+            return res.status(404).json({ erro: 'Oriente não encontrado' });
+        }
+        res.status(204).send();
+    } catch (err) {
+        if (err.code === '23503') {
+            return res.status(409).json({ erro: 'Não é possível excluir: existem Lojas vinculadas a este Oriente.' });
+        }
+        next(err);
+    }
+});
+
 module.exports = router;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Graus — Sistema de Cadastros</title>
+<title>Acessos — Sistema de Cadastros</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,35 +15,48 @@
         <main class="content">
 
             <div class="painel">
-                <h2 id="titulo-formulario">Cadastrar Grau</h2>
+                <h2 id="titulo-formulario">Conceder acesso a um Maçom</h2>
                 <div class="alerta erro" id="alerta-erro"></div>
                 <div class="alerta sucesso" id="alerta-sucesso"></div>
-                <form id="form-grau">
+
+                <form id="form-acesso">
+                    <div class="campo combo">
+                        <label for="busca-macom">Maçom</label>
+                        <input type="text" id="busca-macom" autocomplete="off" placeholder="Buscar por nome ou CIM...">
+                        <div class="combo-lista" id="lista-macom"></div>
+                    </div>
+
                     <div class="linha-campos">
                         <div class="campo">
-                            <label for="ds_grau">Descrição do Grau</label>
-                            <input type="text" id="ds_grau" required>
+                            <label for="login">Login</label>
+                            <input type="text" id="login" required>
                         </div>
                         <div class="campo">
-                            <label for="id_ritu">Rito</label>
-                            <select id="id_ritu">
-                                <option value="">Selecione...</option>
+                            <label for="senha">Senha</label>
+                            <input type="password" id="senha" placeholder="Deixe em branco para não alterar">
+                        </div>
+                        <div class="campo">
+                            <label for="papel">Papel</label>
+                            <select id="papel" required>
+                                <option value="usuario">Usuário comum (só vê o Quadro de Membros)</option>
+                                <option value="admin">Administrador (acesso completo)</option>
                             </select>
                         </div>
                     </div>
+
                     <div style="display:flex; gap:10px;">
-                        <button type="submit" class="btn" id="botao-salvar">Salvar</button>
+                        <button type="submit" class="btn" id="botao-salvar">Salvar acesso</button>
                         <button type="button" class="btn btn-secundario" id="botao-cancelar" hidden>Cancelar edição</button>
                     </div>
                 </form>
             </div>
 
             <div class="painel">
-                <h2>Graus cadastrados</h2>
+                <h2>Acessos cadastrados</h2>
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
-                            <tr><th>Descrição</th><th>Rito</th><th>Ações</th></tr>
+                            <tr><th>Nome</th><th>Login</th><th>CIM vinculado</th><th>Papel</th><th>Ações</th></tr>
                         </thead>
                         <tbody id="corpo-tabela"></tbody>
                     </table>
@@ -59,7 +72,7 @@
 <script src="js/sidebar.js"></script>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
-<script src="js/selecao-com-novo.js"></script>
-<script src="js/graus.js"></script>
+<script src="js/combo.js"></script>
+<script src="js/acessos.js"></script>
 </body>
 </html>

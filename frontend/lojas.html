@@ -15,7 +15,7 @@
         <main class="content">
 
             <div class="painel">
-                <h2>Cadastrar Loja</h2>
+                <h2 id="titulo-formulario">Cadastrar Loja</h2>
                 <div class="alerta erro" id="alerta-erro"></div>
                 <div class="alerta sucesso" id="alerta-sucesso"></div>
                 <form id="form-loja">
@@ -53,7 +53,10 @@
                         <label for="ds_endereco">Endereço</label>
                         <input type="text" id="ds_endereco">
                     </div>
-                    <button type="submit" class="btn">Salvar Loja</button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="btn" id="botao-salvar">Salvar Loja</button>
+                        <button type="button" class="btn btn-secundario" id="botao-cancelar" hidden>Cancelar edição</button>
+                    </div>
                 </form>
             </div>
 
@@ -69,7 +72,7 @@
                     <table class="tabela">
                         <thead>
                             <tr>
-                                <th>Loja</th><th>Venerável</th><th>Potência</th><th>Oriente</th><th>Rito</th>
+                                <th>Loja</th><th>Venerável</th><th>Potência</th><th>Oriente</th><th>Rito</th><th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="corpo-tabela"></tbody>
@@ -86,6 +89,7 @@
 <script src="js/sidebar.js"></script>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
+<script src="js/selecao-com-novo.js"></script>
 <script src="js/lojas.js"></script>
 </body>
 </html>

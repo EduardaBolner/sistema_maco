@@ -40,3 +40,20 @@ async function apiPost(caminho, dados) {
     });
     return tratarResposta(res);
 }
+
+async function apiPut(caminho, dados) {
+    const res = await fetch(`${API_BASE_URL}${caminho}`, {
+        method: 'PUT',
+        headers: cabecalhosAutenticados({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(dados)
+    });
+    return tratarResposta(res);
+}
+
+async function apiDelete(caminho) {
+    const res = await fetch(`${API_BASE_URL}${caminho}`, {
+        method: 'DELETE',
+        headers: cabecalhosAutenticados()
+    });
+    return tratarResposta(res);
+}

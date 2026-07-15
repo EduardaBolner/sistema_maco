@@ -555,6 +555,30 @@ table.tabela tr:hover td {
     background: rgba(201, 162, 39, 0.06);
 }
 
+.acoes-tabela {
+    display: flex;
+    gap: 14px;
+    white-space: nowrap;
+}
+
+.acao-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.acao-link.editar {
+    color: var(--dourado-claro);
+}
+
+.acao-link.excluir {
+    color: var(--vermelho-claro);
+}
+
 .vazio {
     text-align: center;
     padding: 40px 20px;

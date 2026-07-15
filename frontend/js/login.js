@@ -1,7 +1,7 @@
 document.getElementById('selo-login').src = SELO_BASE64;
 
 if (obterToken()) {
-    window.location.href = 'menu.html';
+    window.location.href = ehAdmin() ? 'menu.html' : 'quadro-membros.html';
 }
 
 document.getElementById('form-login').addEventListener('submit', async (evento) => {
@@ -35,8 +35,8 @@ document.getElementById('form-login').addEventListener('submit', async (evento) 
             return;
         }
 
-        definirSessao({ token: corpo.token, nome: corpo.nome });
-        window.location.href = 'menu.html';
+        definirSessao({ token: corpo.token, nome: corpo.nome, papel: corpo.papel });
+        window.location.href = corpo.papel === 'admin' ? 'menu.html' : 'quadro-membros.html';
     } catch (erro) {
         alerta.textContent = 'Não foi possível conectar à API. Verifique se o servidor está em execução.';
         alerta.classList.add('mostrar');

@@ -10,8 +10,8 @@ function obterSessao() {
     }
 }
 
-function definirSessao({ token, nome }) {
-    localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ token, nome }));
+function definirSessao({ token, nome, papel }) {
+    localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ token, nome, papel }));
 }
 
 function obterToken() {
@@ -24,6 +24,15 @@ function obterUsuarioLogado() {
     return sessao ? { nome: sessao.nome } : null;
 }
 
+function obterPapel() {
+    const sessao = obterSessao();
+    return sessao ? sessao.papel : null;
+}
+
+function ehAdmin() {
+    return obterPapel() === 'admin';
+}
+
 function encerrarSessao() {
     localStorage.removeItem(CHAVE_SESSAO);
     window.location.href = 'index.html';
@@ -32,5 +41,11 @@ function encerrarSessao() {
 function exigirAutenticacao() {
     if (!obterToken()) {
         window.location.href = 'index.html';
+    }
+}
+
+function exigirAdminNoFrontend() {
+    if (!ehAdmin()) {
+        window.location.href = 'quadro-membros.html';
     }
 }

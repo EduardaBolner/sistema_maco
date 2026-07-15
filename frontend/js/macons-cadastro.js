@@ -1,4 +1,5 @@
 exigirAutenticacao();
+exigirAdminNoFrontend();
 renderizarShell({ ativo: 'macons', titulo: 'Cadastrar Maçom', breadcrumb: 'Início / Maçons / Cadastrar' });
 
 const alertaErro = document.getElementById('alerta-erro');
@@ -15,6 +16,11 @@ const selectEstadoNoOriente = document.getElementById('select-estado-no-oriente'
 const selectPaisNoEstado = document.getElementById('select-pais-no-estado');
 
 let lojaSelecionadaId = null;
+const idEdicao = new URLSearchParams(window.location.search).get('id');
+
+function formatarDataParaInput(valor) {
+    return valor ? valor.slice(0, 10) : '';
+}
 
 function mostrarErro(mensagem) {
     alertaSucesso.classList.remove('mostrar');
@@ -234,12 +240,17 @@ document.getElementById('form-macom').addEventListener('submit', async (evento) 
     };
 
     try {
-        await apiPost('/macons', dados);
-        mostrarSucesso('Maçom cadastrado com sucesso.');
-        document.getElementById('form-macom').reset();
-        lojaSelecionadaId = null;
-        selectGrau.disabled = true;
-        selectGrau.innerHTML = '<option value="">Selecione uma Loja primeiro</option>';
+        if (idEdicao) {
+            await apiPut(`/macons/${idEdicao}`, dados);
+            mostrarSucesso('Maçom atualizado com sucesso.');
+        } else {
+            await apiPost('/macons', dados);
+            mostrarSucesso('Maçom cadastrado com sucesso.');
+            document.getElementById('form-macom').reset();
+            lojaSelecionadaId = null;
+            selectGrau.disabled = true;
+            selectGrau.innerHTML = '<option value="">Selecione uma Loja primeiro</option>';
+        }
     } catch (erro) {
         if (erro.status === 409) {
             campoCim.classList.add('invalido');
@@ -248,4 +259,37 @@ document.getElementById('form-macom').addEventListener('submit', async (evento) 
     }
 });
 
+async function carregarMacomParaEdicao() {
+    try {
+        const macom = await apiGet(`/macons/${idEdicao}`);
+
+        document.getElementById('titulo-formulario').textContent = 'Editar Maçom';
+        document.getElementById('botao-salvar-macom').textContent = 'Salvar edição';
+        renderizarShell({ ativo: 'macons', titulo: 'Editar Maçom', breadcrumb: 'Início / Maçons / Editar' });
+
+        document.getElementById('cim').value = macom.cim;
+        document.getElementById('nm_macom').value = macom.nm_macom;
+        document.getElementById('dt_nascimento').value = formatarDataParaInput(macom.dt_nascimento);
+        document.getElementById('dt_iniciacao').value = formatarDataParaInput(macom.dt_iniciacao);
+        document.getElementById('dt_elevacao').value = formatarDataParaInput(macom.dt_elevacao);
+        document.getElementById('dt_exaltacao').value = formatarDataParaInput(macom.dt_exaltacao);
+        document.getElementById('nr_ddd').value = macom.nr_ddd || '';
+        document.getElementById('nr_celular').value = macom.nr_celular || '';
+        document.getElementById('ds_endereco').value = macom.ds_endereco || '';
+
+        if (macom.id_loja) {
+            lojaSelecionadaId = macom.id_loja;
+            buscaLoja.value = macom.ds_loja;
+            buscaLoja.dataset.id = macom.id_loja;
+            await carregarGrausDaLoja(macom.id_ritu);
+            selectGrau.value = macom.id_grau || '';
+        }
+    } catch (erro) {
+        mostrarErro('Não foi possível carregar os dados deste Maçom.');
+    }
+}
+
 carregarSelecoesIniciais();
+if (idEdicao) {
+    carregarMacomParaEdicao();
+}

@@ -1,12 +1,13 @@
 const ITENS_NAVEGACAO = [
-    { chave: 'inicio', rotulo: 'Início', href: 'menu.html', icone: '&#9679;' },
-    { chave: 'macons', rotulo: 'Maçons', href: 'macons-listagem.html', icone: '&#10022;' },
-    { chave: 'lojas', rotulo: 'Lojas', href: 'lojas.html', icone: '&#9651;' },
-    { chave: 'ritos', rotulo: 'Ritos', href: 'ritos.html', icone: '&#10013;' },
-    { chave: 'graus', rotulo: 'Graus', href: 'graus.html', icone: '&#9878;' },
-    { chave: 'potencias', rotulo: 'Potências', href: 'potencias.html', icone: '&#9737;' },
-    { chave: 'orientes', rotulo: 'Oriente / Estado / País', href: 'orientes-paises.html', icone: '&#9789;' },
-    { chave: 'quadro', rotulo: 'Quadro de Membros', href: 'quadro-membros.html', icone: '&#9813;' }
+    { chave: 'inicio', rotulo: 'Início', href: 'menu.html', icone: '&#9679;', somenteAdmin: true },
+    { chave: 'macons', rotulo: 'Maçons', href: 'macons-listagem.html', icone: '&#10022;', somenteAdmin: true },
+    { chave: 'lojas', rotulo: 'Lojas', href: 'lojas.html', icone: '&#9651;', somenteAdmin: true },
+    { chave: 'ritos', rotulo: 'Ritos', href: 'ritos.html', icone: '&#10013;', somenteAdmin: true },
+    { chave: 'graus', rotulo: 'Graus', href: 'graus.html', icone: '&#9878;', somenteAdmin: true },
+    { chave: 'potencias', rotulo: 'Potências', href: 'potencias.html', icone: '&#9737;', somenteAdmin: true },
+    { chave: 'orientes', rotulo: 'Oriente / Estado / País', href: 'orientes-paises.html', icone: '&#9789;', somenteAdmin: true },
+    { chave: 'quadro', rotulo: 'Quadro de Membros', href: 'quadro-membros.html', icone: '&#9813;', somenteAdmin: false },
+    { chave: 'acessos', rotulo: 'Acessos', href: 'acessos.html', icone: '&#128273;', somenteAdmin: true }
 ];
 
 function formatarDataHora(data) {
@@ -20,14 +21,16 @@ function renderizarShell({ ativo, titulo, breadcrumb }) {
     const usuario = obterUsuarioLogado();
     const nome = usuario ? usuario.nome : 'Visitante';
 
-    const itensHtml = ITENS_NAVEGACAO.map(item => `
-        <li>
-            <a href="${item.href}" class="${item.chave === ativo ? 'ativo' : ''}">
-                <span class="icone">${item.icone}</span>
-                <span>${item.rotulo}</span>
-            </a>
-        </li>
-    `).join('');
+    const itensHtml = ITENS_NAVEGACAO
+        .filter(item => !item.somenteAdmin || ehAdmin())
+        .map(item => `
+            <li>
+                <a href="${item.href}" class="${item.chave === ativo ? 'ativo' : ''}">
+                    <span class="icone">${item.icone}</span>
+                    <span>${item.rotulo}</span>
+                </a>
+            </li>
+        `).join('');
 
     const sidebarSlot = document.getElementById('sidebar-slot');
     if (sidebarSlot) {

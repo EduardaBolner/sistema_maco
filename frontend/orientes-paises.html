@@ -18,18 +18,21 @@
             <div class="alerta sucesso" id="alerta-sucesso"></div>
 
             <div class="painel">
-                <h2>Cadastrar País</h2>
+                <h2 id="titulo-pais">Cadastrar País</h2>
                 <form id="form-pais">
                     <div class="campo">
                         <label for="ds_pais">Nome do País</label>
                         <input type="text" id="ds_pais" required>
                     </div>
-                    <button type="submit" class="btn">Salvar País</button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="btn" id="botao-salvar-pais">Salvar País</button>
+                        <button type="button" class="btn btn-secundario" id="botao-cancelar-pais" hidden>Cancelar edição</button>
+                    </div>
                 </form>
             </div>
 
             <div class="painel">
-                <h2>Cadastrar Estado</h2>
+                <h2 id="titulo-estado">Cadastrar Estado</h2>
                 <form id="form-estado">
                     <div class="linha-campos">
                         <div class="campo">
@@ -42,12 +45,15 @@
                             <div class="combo-lista" id="lista-pais-estado"></div>
                         </div>
                     </div>
-                    <button type="submit" class="btn">Salvar Estado</button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="btn" id="botao-salvar-estado">Salvar Estado</button>
+                        <button type="button" class="btn btn-secundario" id="botao-cancelar-estado" hidden>Cancelar edição</button>
+                    </div>
                 </form>
             </div>
 
             <div class="painel">
-                <h2>Cadastrar Oriente</h2>
+                <h2 id="titulo-oriente">Cadastrar Oriente</h2>
                 <form id="form-oriente">
                     <div class="linha-campos">
                         <div class="campo">
@@ -60,7 +66,10 @@
                             <div class="combo-lista" id="lista-estado-oriente"></div>
                         </div>
                     </div>
-                    <button type="submit" class="btn">Salvar Oriente</button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="btn" id="botao-salvar-oriente">Salvar Oriente</button>
+                        <button type="button" class="btn btn-secundario" id="botao-cancelar-oriente" hidden>Cancelar edição</button>
+                    </div>
                 </form>
             </div>
 
@@ -69,7 +78,7 @@
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
-                            <tr><th>Oriente</th><th>Estado</th><th>País</th></tr>
+                            <tr><th>Oriente</th><th>Estado</th><th>País</th><th>Ações</th></tr>
                         </thead>
                         <tbody id="corpo-tabela-oriente"></tbody>
                     </table>
@@ -81,7 +90,7 @@
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
-                            <tr><th>Estado</th><th>País</th></tr>
+                            <tr><th>Estado</th><th>País</th><th>Ações</th></tr>
                         </thead>
                         <tbody id="corpo-tabela-estado"></tbody>
                     </table>
@@ -93,7 +102,7 @@
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
-                            <tr><th>País</th></tr>
+                            <tr><th>País</th><th>Ações</th></tr>
                         </thead>
                         <tbody id="corpo-tabela-pais"></tbody>
                     </table>
