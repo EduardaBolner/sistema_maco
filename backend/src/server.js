@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const exigirAutenticacao = require('./middleware/auth');
+
+const authRouter = require('./routes/auth');
 const paisesRouter = require('./routes/paises');
 const estadosRouter = require('./routes/estados');
 const orientesRouter = require('./routes/orientes');
@@ -16,6 +19,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.use('/auth', authRouter);
+
+app.use(exigirAutenticacao);
+
 app.use('/paises', paisesRouter);
 app.use('/estados', estadosRouter);
 app.use('/orientes', orientesRouter);
@@ -24,8 +32,6 @@ app.use('/ritos', ritosRouter);
 app.use('/graus', grausRouter);
 app.use('/lojas', lojasRouter);
 app.use('/macons', maconsRouter);
-
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use((err, req, res, next) => {
     console.error(err);

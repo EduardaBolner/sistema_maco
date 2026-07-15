@@ -62,10 +62,11 @@ createdb -U postgres sistema_maco
 psql -U postgres -d sistema_maco -f backend/sql/schema.sql
 ```
 
-Para um banco já existente na versão anterior (sem Estado), aplique a migração:
+Para um banco já existente em versão anterior, aplique as migrações na ordem:
 
 ```bash
 psql -U postgres -d sistema_maco -f backend/sql/migrations/002_add_estado.sql
+psql -U postgres -d sistema_maco -f backend/sql/migrations/003_add_usuario.sql
 ```
 
 ### 2. Backend
@@ -73,11 +74,17 @@ psql -U postgres -d sistema_maco -f backend/sql/migrations/002_add_estado.sql
 ```bash
 cd backend
 npm install
-cp .env.example .env   # preencha PGPASSWORD com a senha do seu Postgres
+cp .env.example .env   # preencha PGPASSWORD com a senha do seu Postgres e gere um JWT_SECRET
 npm start               # ou: npm run dev (recarrega automaticamente)
 ```
 
 A API sobe em `http://localhost:3000`.
+
+Crie o primeiro usuário do sistema (a senha é hasheada com bcrypt antes de ir para o banco):
+
+```bash
+node scripts/criar-usuario.js "Nome Completo" login senha
+```
 
 ### 3. Frontend
 
@@ -90,12 +97,11 @@ npx http-server -p 8080
 
 Acesse `http://localhost:8080/index.html`.
 
-> O login é apenas visual (sem autenticação real) — qualquer usuário/senha entra no sistema.
-
 ## Endpoints da API
 
 | Método | Rota | Descrição |
 |---|---|---|
+| POST | `/auth/login` | Autenticação — recebe `{ login, senha }`, retorna `{ token, nome }`. Credenciais inválidas retornam `401`. |
 | GET/POST | `/paises` | Países |
 | GET/POST | `/estados` | Estados (filtráveis por `?id_pais=`) |
 | GET/POST | `/orientes` | Orientes (filtráveis por `?id_estado=`) |
@@ -105,9 +111,12 @@ Acesse `http://localhost:8080/index.html`.
 | GET/POST | `/lojas` | Lojas (filtráveis por `?nome=`) |
 | GET/POST | `/macons` | Maçons (filtráveis por `?nome=`, `?loja=`, `?cim=`) — CIM duplicado retorna `409`. Cada registro já vem com o nome da Loja, Rito, Grau, Potência, Oriente, Estado e País. |
 
+Todas as rotas acima, exceto `/auth/login` e `/health`, exigem o cabeçalho `Authorization: Bearer <token>`. Sem token válido, a API responde `401`.
+
 ## Funcionalidades
 
-- 10 telas: login, início (selo centralizado), cadastro e listagem de Maçons, Quadro de Membros, cadastro de Loja, Rito, Grau, Potência e Oriente/Estado/País (unificada).
+- 10 telas: login (autenticação real), início (selo centralizado), cadastro e listagem de Maçons, Quadro de Membros, cadastro de Loja, Rito, Grau, Potência e Oriente/Estado/País (unificada).
+- Autenticação real: senha hasheada com bcrypt, login gera um token JWT (validade de 12h) que protege toda a API.
 - Filtragem dependente: ao escolher a Loja no cadastro de Maçom, o campo Grau libera apenas os graus do Rito daquela loja.
 - Criação inline encadeada: no cadastro de Maçom, ao criar uma Loja nova é possível também buscar ou cadastrar na hora sua Potência, Rito e Oriente — e ao criar um Oriente novo, buscar ou cadastrar seu Estado, e ao criar um Estado novo, buscar ou cadastrar seu País. Tudo sem sair do formulário.
 - Quadro de Membros: relatório com todos os Maçons cadastrados e seus vínculos completos (Loja, Rito, Grau, Potência, Oriente, Estado, País).
@@ -115,7 +124,6 @@ Acesse `http://localhost:8080/index.html`.
 
 ## Pendências para produção
 
-- Autenticação real (tabela de usuários, hash de senha, rota de auth).
 - Hospedagem da API e do banco em ambiente gerenciado, com backups.
 - HTTPS e segredos de produção isolados.
 - Listagem/busca nas demais entidades (hoje só Maçons e Lojas têm busca).

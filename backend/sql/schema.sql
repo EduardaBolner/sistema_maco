@@ -1,6 +1,14 @@
 -- Sistema de Cadastros - Grande Loja Regular do Rio Grande do Sul
 -- Schema relacional conforme ER fornecido pelo cliente
 
+CREATE TABLE usuario (
+    id_usuario   SERIAL PRIMARY KEY,
+    nm_usuario   VARCHAR(150) NOT NULL,
+    login        VARCHAR(60) NOT NULL UNIQUE,
+    senha_hash   VARCHAR(100) NOT NULL,
+    dt_criacao   TIMESTAMP NOT NULL DEFAULT now()
+);
+
 CREATE TABLE pais (
     id_pais     SERIAL PRIMARY KEY,
     ds_pais     VARCHAR(120) NOT NULL

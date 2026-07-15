@@ -1,7 +1,7 @@
-const CHAVE_USUARIO = 'sm_usuario';
+const CHAVE_SESSAO = 'sm_sessao';
 
-function obterUsuarioLogado() {
-    const bruto = localStorage.getItem(CHAVE_USUARIO);
+function obterSessao() {
+    const bruto = localStorage.getItem(CHAVE_SESSAO);
     if (!bruto) return null;
     try {
         return JSON.parse(bruto);
@@ -10,17 +10,27 @@ function obterUsuarioLogado() {
     }
 }
 
-function definirUsuarioLogado(nome) {
-    localStorage.setItem(CHAVE_USUARIO, JSON.stringify({ nome }));
+function definirSessao({ token, nome }) {
+    localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ token, nome }));
+}
+
+function obterToken() {
+    const sessao = obterSessao();
+    return sessao ? sessao.token : null;
+}
+
+function obterUsuarioLogado() {
+    const sessao = obterSessao();
+    return sessao ? { nome: sessao.nome } : null;
 }
 
 function encerrarSessao() {
-    localStorage.removeItem(CHAVE_USUARIO);
+    localStorage.removeItem(CHAVE_SESSAO);
     window.location.href = 'index.html';
 }
 
 function exigirAutenticacao() {
-    if (!obterUsuarioLogado()) {
+    if (!obterToken()) {
         window.location.href = 'index.html';
     }
 }
