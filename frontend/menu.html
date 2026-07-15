@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Início — Sistema de Cadastros</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar-slot"></aside>
+    <div class="main">
+        <header class="topbar" id="topbar-slot"></header>
+        <main class="content">
+            <p style="color: var(--texto-suave); margin-top:0;">Selecione um cadastro para começar.</p>
+
+            <div class="grade-cartoes">
+                <a class="cartao-menu" href="macons-listagem.html">
+                    <div class="icone">&#10022;</div>
+                    <div class="titulo">Maçons</div>
+                </a>
+                <a class="cartao-menu" href="lojas.html">
+                    <div class="icone">&#9651;</div>
+                    <div class="titulo">Lojas</div>
+                </a>
+                <a class="cartao-menu" href="ritos.html">
+                    <div class="icone">&#10013;</div>
+                    <div class="titulo">Ritos</div>
+                </a>
+                <a class="cartao-menu" href="graus.html">
+                    <div class="icone">&#9878;</div>
+                    <div class="titulo">Graus</div>
+                </a>
+                <a class="cartao-menu" href="potencias.html">
+                    <div class="icone">&#9737;</div>
+                    <div class="titulo">Potências</div>
+                </a>
+                <a class="cartao-menu" href="orientes-paises.html">
+                    <div class="icone">&#9789;</div>
+                    <div class="titulo">Oriente / País</div>
+                </a>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="js/selo.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+    exigirAutenticacao();
+    renderizarShell({ ativo: 'inicio', titulo: 'Início', breadcrumb: 'Início' });
+</script>
+</body>
+</html>

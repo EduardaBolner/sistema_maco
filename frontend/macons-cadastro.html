@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Maçom — Sistema de Cadastros</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar-slot"></aside>
+    <div class="main">
+        <header class="topbar" id="topbar-slot"></header>
+        <main class="content">
+
+            <div class="painel">
+                <h2>Cadastrar Maçom</h2>
+                <div class="alerta erro" id="alerta-erro"></div>
+                <div class="alerta sucesso" id="alerta-sucesso"></div>
+
+                <form id="form-macom">
+                    <div class="linha-campos">
+                        <div class="campo" id="campo-cim">
+                            <label for="cim">CIM</label>
+                            <input type="number" id="cim" required>
+                            <small class="erro-campo" id="erro-cim">Já existe um Maçom cadastrado com este CIM.</small>
+                        </div>
+                        <div class="campo">
+                            <label for="nm_macom">Nome completo</label>
+                            <input type="text" id="nm_macom" required>
+                        </div>
+                    </div>
+
+                    <div class="linha-campos">
+                        <div class="campo combo">
+                            <label for="busca-loja">Loja</label>
+                            <input type="text" id="busca-loja" autocomplete="off" placeholder="Buscar ou cadastrar...">
+                            <div class="combo-lista" id="lista-loja"></div>
+                        </div>
+                        <div class="campo">
+                            <label for="id_grau">Grau</label>
+                            <select id="id_grau" disabled>
+                                <option value="">Selecione uma Loja primeiro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="linha-campos">
+                        <div class="campo">
+                            <label for="dt_nascimento">Data de nascimento</label>
+                            <input type="date" id="dt_nascimento">
+                        </div>
+                        <div class="campo">
+                            <label for="dt_iniciacao">Data de iniciação</label>
+                            <input type="date" id="dt_iniciacao">
+                        </div>
+                        <div class="campo">
+                            <label for="dt_elevacao">Data de elevação</label>
+                            <input type="date" id="dt_elevacao">
+                        </div>
+                        <div class="campo">
+                            <label for="dt_exaltacao">Data de exaltação</label>
+                            <input type="date" id="dt_exaltacao">
+                        </div>
+                    </div>
+
+                    <div class="linha-campos">
+                        <div class="campo">
+                            <label for="nr_ddd">DDD</label>
+                            <input type="text" id="nr_ddd" maxlength="3">
+                        </div>
+                        <div class="campo">
+                            <label for="nr_celular">Celular</label>
+                            <input type="text" id="nr_celular">
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <label for="ds_endereco">Endereço</label>
+                        <input type="text" id="ds_endereco">
+                    </div>
+
+                    <button type="submit" class="btn">Salvar Maçom</button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="js/selo.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/combo.js"></script>
+<script src="js/macons-cadastro.js"></script>
+</body>
+</html>

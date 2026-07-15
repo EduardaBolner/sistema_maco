@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Potências — Sistema de Cadastros</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar-slot"></aside>
+    <div class="main">
+        <header class="topbar" id="topbar-slot"></header>
+        <main class="content">
+
+            <div class="painel">
+                <h2>Cadastrar Potência</h2>
+                <div class="alerta erro" id="alerta-erro"></div>
+                <div class="alerta sucesso" id="alerta-sucesso"></div>
+                <form id="form-potencia">
+                    <div class="campo">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" required>
+                    </div>
+                    <button type="submit" class="btn">Salvar</button>
+                </form>
+            </div>
+
+            <div class="painel">
+                <h2>Potências cadastradas</h2>
+                <div class="tabela-wrap">
+                    <table class="tabela">
+                        <thead>
+                            <tr><th>Nome</th><th>Criado em</th></tr>
+                        </thead>
+                        <tbody id="corpo-tabela"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="js/selo.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/potencias.js"></script>
+</body>
+</html>

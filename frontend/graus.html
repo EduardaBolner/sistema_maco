@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graus — Sistema de Cadastros</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar-slot"></aside>
+    <div class="main">
+        <header class="topbar" id="topbar-slot"></header>
+        <main class="content">
+
+            <div class="painel">
+                <h2>Cadastrar Grau</h2>
+                <div class="alerta erro" id="alerta-erro"></div>
+                <div class="alerta sucesso" id="alerta-sucesso"></div>
+                <form id="form-grau">
+                    <div class="linha-campos">
+                        <div class="campo">
+                            <label for="ds_grau">Descrição do Grau</label>
+                            <input type="text" id="ds_grau" required>
+                        </div>
+                        <div class="campo">
+                            <label for="id_ritu">Rito</label>
+                            <select id="id_ritu">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Salvar</button>
+                </form>
+            </div>
+
+            <div class="painel">
+                <h2>Graus cadastrados</h2>
+                <div class="tabela-wrap">
+                    <table class="tabela">
+                        <thead>
+                            <tr><th>Descrição</th><th>Rito</th></tr>
+                        </thead>
+                        <tbody id="corpo-tabela"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="js/selo.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/graus.js"></script>
+</body>
+</html>
