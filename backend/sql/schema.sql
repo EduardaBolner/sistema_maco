@@ -6,12 +6,19 @@ CREATE TABLE pais (
     ds_pais     VARCHAR(120) NOT NULL
 );
 
+CREATE TABLE estado (
+    id_estado   SERIAL PRIMARY KEY,
+    ds_estado   VARCHAR(120) NOT NULL,
+    id_pais     INTEGER REFERENCES pais(id_pais)
+);
+CREATE INDEX idx_estado_id_pais ON estado(id_pais);
+
 CREATE TABLE oriente (
     id_oriente  SERIAL PRIMARY KEY,
     ds_oriente  VARCHAR(150) NOT NULL,
-    id_pais     INTEGER REFERENCES pais(id_pais)
+    id_estado   INTEGER REFERENCES estado(id_estado)
 );
-CREATE INDEX idx_oriente_id_pais ON oriente(id_pais);
+CREATE INDEX idx_oriente_id_estado ON oriente(id_estado);
 
 CREATE TABLE potencia (
     id_potencia SERIAL PRIMARY KEY,

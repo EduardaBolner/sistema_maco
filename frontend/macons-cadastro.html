@@ -46,6 +46,94 @@
                         </div>
                     </div>
 
+                    <div class="subpainel" id="subpainel-nova-loja" hidden>
+                        <h3>Nova Loja</h3>
+
+                        <div class="campo">
+                            <label for="nova-loja-nome">Nome da Loja</label>
+                            <input type="text" id="nova-loja-nome">
+                        </div>
+
+                        <div class="linha-campos">
+                            <div class="campo">
+                                <label>Potência</label>
+                                <div class="selecao-com-novo">
+                                    <select id="select-potencia"><option value="">Selecione...</option></select>
+                                    <button type="button" class="btn-link" id="btn-nova-potencia">+ Nova</button>
+                                </div>
+                                <div class="mini-form" id="mini-potencia" hidden>
+                                    <input type="text" id="input-nova-potencia" placeholder="Nome da potência">
+                                    <button type="button" class="btn btn-secundario" id="salvar-nova-potencia">Salvar</button>
+                                </div>
+                            </div>
+                            <div class="campo">
+                                <label>Rito</label>
+                                <div class="selecao-com-novo">
+                                    <select id="select-rito"><option value="">Selecione...</option></select>
+                                    <button type="button" class="btn-link" id="btn-novo-rito">+ Novo</button>
+                                </div>
+                                <div class="mini-form" id="mini-rito" hidden>
+                                    <input type="text" id="input-novo-rito" placeholder="Descrição do rito">
+                                    <button type="button" class="btn btn-secundario" id="salvar-novo-rito">Salvar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="campo">
+                            <label>Oriente</label>
+                            <div class="selecao-com-novo">
+                                <select id="select-oriente"><option value="">Selecione...</option></select>
+                                <button type="button" class="btn-link" id="btn-novo-oriente">+ Novo</button>
+                            </div>
+                            <div class="mini-form-vertical" id="mini-oriente" hidden>
+                                <input type="text" id="input-novo-oriente" placeholder="Nome do Oriente (cidade)">
+
+                                <div class="campo">
+                                    <label>Estado</label>
+                                    <div class="selecao-com-novo">
+                                        <select id="select-estado-no-oriente"><option value="">Selecione...</option></select>
+                                        <button type="button" class="btn-link" id="btn-novo-estado">+ Novo</button>
+                                    </div>
+                                    <div class="mini-form-vertical subpainel" id="mini-estado" hidden>
+                                        <input type="text" id="input-novo-estado" placeholder="Nome do Estado">
+
+                                        <div class="campo">
+                                            <label>País</label>
+                                            <div class="selecao-com-novo">
+                                                <select id="select-pais-no-estado"><option value="">Selecione...</option></select>
+                                                <button type="button" class="btn-link" id="btn-novo-pais">+ Novo</button>
+                                            </div>
+                                            <div class="mini-form" id="mini-pais" hidden>
+                                                <input type="text" id="input-novo-pais" placeholder="Nome do País">
+                                                <button type="button" class="btn btn-secundario" id="salvar-novo-pais">Salvar</button>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" class="btn btn-secundario" id="salvar-novo-estado">Salvar Estado</button>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-secundario" id="salvar-novo-oriente">Salvar Oriente</button>
+                            </div>
+                        </div>
+
+                        <div class="linha-campos">
+                            <div class="campo">
+                                <label for="nova-loja-veneravel">Venerável Mestre</label>
+                                <input type="text" id="nova-loja-veneravel">
+                            </div>
+                            <div class="campo">
+                                <label for="nova-loja-endereco">Endereço</label>
+                                <input type="text" id="nova-loja-endereco">
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:10px;">
+                            <button type="button" class="btn" id="btn-salvar-nova-loja">Salvar Loja</button>
+                            <button type="button" class="btn btn-secundario" id="btn-cancelar-nova-loja">Cancelar</button>
+                        </div>
+                    </div>
+
                     <div class="linha-campos">
                         <div class="campo">
                             <label for="dt_nascimento">Data de nascimento</label>
@@ -95,6 +183,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/combo.js"></script>
+<script src="js/selecao-com-novo.js"></script>
 <script src="js/macons-cadastro.js"></script>
 </body>
 </html>

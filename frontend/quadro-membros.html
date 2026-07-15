@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadro de Membros — Sistema de Cadastros</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar-slot"></aside>
+    <div class="main">
+        <header class="topbar" id="topbar-slot"></header>
+        <main class="content">
+
+            <div class="painel">
+                <h2>Quadro de Membros</h2>
+                <div class="alerta erro" id="alerta-erro"></div>
+                <div class="tabela-wrap">
+                    <table class="tabela">
+                        <thead>
+                            <tr>
+                                <th>CIM</th>
+                                <th>Nome</th>
+                                <th>Loja</th>
+                                <th>Rito</th>
+                                <th>Grau</th>
+                                <th>Potência</th>
+                                <th>Oriente</th>
+                                <th>Estado</th>
+                                <th>País</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-tabela"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="js/selo.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/quadro-membros.js"></script>
+</body>
+</html>

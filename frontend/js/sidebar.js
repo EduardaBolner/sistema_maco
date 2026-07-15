@@ -5,7 +5,8 @@ const ITENS_NAVEGACAO = [
     { chave: 'ritos', rotulo: 'Ritos', href: 'ritos.html', icone: '&#10013;' },
     { chave: 'graus', rotulo: 'Graus', href: 'graus.html', icone: '&#9878;' },
     { chave: 'potencias', rotulo: 'Potências', href: 'potencias.html', icone: '&#9737;' },
-    { chave: 'orientes', rotulo: 'Oriente / País', href: 'orientes-paises.html', icone: '&#9789;' }
+    { chave: 'orientes', rotulo: 'Oriente / Estado / País', href: 'orientes-paises.html', icone: '&#9789;' },
+    { chave: 'quadro', rotulo: 'Quadro de Membros', href: 'quadro-membros.html', icone: '&#9813;' }
 ];
 
 function formatarDataHora(data) {

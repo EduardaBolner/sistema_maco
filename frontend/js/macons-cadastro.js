@@ -5,6 +5,14 @@ const alertaErro = document.getElementById('alerta-erro');
 const alertaSucesso = document.getElementById('alerta-sucesso');
 const campoCim = document.getElementById('campo-cim');
 const selectGrau = document.getElementById('id_grau');
+const buscaLoja = document.getElementById('busca-loja');
+const subpainelNovaLoja = document.getElementById('subpainel-nova-loja');
+
+const selectPotencia = document.getElementById('select-potencia');
+const selectRito = document.getElementById('select-rito');
+const selectOriente = document.getElementById('select-oriente');
+const selectEstadoNoOriente = document.getElementById('select-estado-no-oriente');
+const selectPaisNoEstado = document.getElementById('select-pais-no-estado');
 
 let lojaSelecionadaId = null;
 
@@ -42,8 +50,10 @@ async function carregarGrausDaLoja(idRitu) {
     }
 }
 
+// ---------- Busca de Loja (com abertura do subpainel de criação) ----------
+
 configurarCombo({
-    input: document.getElementById('busca-loja'),
+    input: buscaLoja,
     lista: document.getElementById('lista-loja'),
     permitirCriar: true,
     obterRotulo: (item) => item.ds_loja,
@@ -53,18 +63,150 @@ configurarCombo({
     },
     aoSelecionar: (item) => {
         lojaSelecionadaId = item.__id;
+        subpainelNovaLoja.setAttribute('hidden', '');
         carregarGrausDaLoja(item.id_ritu);
     },
     aoCriar: async (termo) => {
+        document.getElementById('nova-loja-nome').value = termo;
+        subpainelNovaLoja.removeAttribute('hidden');
+        return null;
+    }
+});
+
+// ---------- Seleções com criação rápida (Potência, Rito, País, Estado, Oriente) ----------
+
+configurarSelecaoComNovo({
+    select: selectPotencia,
+    botaoNovo: document.getElementById('btn-nova-potencia'),
+    miniForm: document.getElementById('mini-potencia'),
+    inputNome: document.getElementById('input-nova-potencia'),
+    botaoSalvar: document.getElementById('salvar-nova-potencia'),
+    valueKey: 'id_potencia', labelKey: 'nome',
+    carregarOpcoes: () => apiGet('/potencias'),
+    criar: async (nome) => {
         try {
-            const novaLoja = await apiPost('/lojas', { ds_loja: termo });
-            mostrarSucesso(`Loja "${novaLoja.ds_loja}" cadastrada. Complete os demais dados dela na tela de Lojas.`);
-            return { ...novaLoja, __id: novaLoja.id_loja };
+            return await apiPost('/potencias', { nome });
         } catch (erro) {
             mostrarErro(erro.message);
             return null;
         }
     }
+});
+
+configurarSelecaoComNovo({
+    select: selectRito,
+    botaoNovo: document.getElementById('btn-novo-rito'),
+    miniForm: document.getElementById('mini-rito'),
+    inputNome: document.getElementById('input-novo-rito'),
+    botaoSalvar: document.getElementById('salvar-novo-rito'),
+    valueKey: 'id_ritu', labelKey: 'ds_ritu',
+    carregarOpcoes: () => apiGet('/ritos'),
+    criar: async (nome) => {
+        try {
+            return await apiPost('/ritos', { ds_ritu: nome });
+        } catch (erro) {
+            mostrarErro(erro.message);
+            return null;
+        }
+    }
+});
+
+configurarSelecaoComNovo({
+    select: selectPaisNoEstado,
+    botaoNovo: document.getElementById('btn-novo-pais'),
+    miniForm: document.getElementById('mini-pais'),
+    inputNome: document.getElementById('input-novo-pais'),
+    botaoSalvar: document.getElementById('salvar-novo-pais'),
+    valueKey: 'id_pais', labelKey: 'ds_pais',
+    carregarOpcoes: () => apiGet('/paises'),
+    criar: async (nome) => {
+        try {
+            return await apiPost('/paises', { ds_pais: nome });
+        } catch (erro) {
+            mostrarErro(erro.message);
+            return null;
+        }
+    }
+});
+
+configurarSelecaoComNovo({
+    select: selectEstadoNoOriente,
+    botaoNovo: document.getElementById('btn-novo-estado'),
+    miniForm: document.getElementById('mini-estado'),
+    inputNome: document.getElementById('input-novo-estado'),
+    botaoSalvar: document.getElementById('salvar-novo-estado'),
+    valueKey: 'id_estado', labelKey: 'ds_estado',
+    carregarOpcoes: () => apiGet('/estados'),
+    criar: async (nome) => {
+        try {
+            return await apiPost('/estados', { ds_estado: nome, id_pais: selectPaisNoEstado.value || null });
+        } catch (erro) {
+            mostrarErro(erro.message);
+            return null;
+        }
+    }
+});
+
+configurarSelecaoComNovo({
+    select: selectOriente,
+    botaoNovo: document.getElementById('btn-novo-oriente'),
+    miniForm: document.getElementById('mini-oriente'),
+    inputNome: document.getElementById('input-novo-oriente'),
+    botaoSalvar: document.getElementById('salvar-novo-oriente'),
+    valueKey: 'id_oriente', labelKey: 'ds_oriente',
+    carregarOpcoes: () => apiGet('/orientes'),
+    criar: async (nome) => {
+        try {
+            return await apiPost('/orientes', { ds_oriente: nome, id_estado: selectEstadoNoOriente.value || null });
+        } catch (erro) {
+            mostrarErro(erro.message);
+            return null;
+        }
+    }
+});
+
+async function carregarSelecoesIniciais() {
+    const [potencias, ritos, orientes, estados, paises] = await Promise.all([
+        apiGet('/potencias'), apiGet('/ritos'), apiGet('/orientes'), apiGet('/estados'), apiGet('/paises')
+    ]);
+    popularSelect(selectPotencia, potencias, 'id_potencia', 'nome');
+    popularSelect(selectRito, ritos, 'id_ritu', 'ds_ritu');
+    popularSelect(selectOriente, orientes, 'id_oriente', 'ds_oriente');
+    popularSelect(selectEstadoNoOriente, estados, 'id_estado', 'ds_estado');
+    popularSelect(selectPaisNoEstado, paises, 'id_pais', 'ds_pais');
+}
+
+document.getElementById('btn-salvar-nova-loja').addEventListener('click', async () => {
+    const ds_loja = document.getElementById('nova-loja-nome').value.trim();
+    if (!ds_loja) {
+        mostrarErro('Informe o nome da nova Loja.');
+        return;
+    }
+
+    const dados = {
+        ds_loja,
+        id_potencia: selectPotencia.value || null,
+        id_ritu: selectRito.value || null,
+        id_oriente: selectOriente.value || null,
+        nm_veneravel: document.getElementById('nova-loja-veneravel').value.trim() || null,
+        ds_endereco: document.getElementById('nova-loja-endereco').value.trim() || null
+    };
+
+    try {
+        const novaLoja = await apiPost('/lojas', dados);
+        mostrarSucesso(`Loja "${novaLoja.ds_loja}" cadastrada com sucesso.`);
+        buscaLoja.value = novaLoja.ds_loja;
+        buscaLoja.dataset.id = novaLoja.id_loja;
+        lojaSelecionadaId = novaLoja.id_loja;
+        subpainelNovaLoja.setAttribute('hidden', '');
+        carregarGrausDaLoja(novaLoja.id_ritu);
+    } catch (erro) {
+        mostrarErro(erro.message);
+    }
+});
+
+document.getElementById('btn-cancelar-nova-loja').addEventListener('click', () => {
+    subpainelNovaLoja.setAttribute('hidden', '');
 });
 
 document.getElementById('form-macom').addEventListener('submit', async (evento) => {
@@ -105,3 +247,5 @@ document.getElementById('form-macom').addEventListener('submit', async (evento) 
         mostrarErro(erro.message);
     }
 });
+
+carregarSelecoesIniciais();

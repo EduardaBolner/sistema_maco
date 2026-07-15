@@ -29,10 +29,10 @@ function configurarCombo({ input, lista, buscar, obterRotulo, aoSelecionar, perm
             div.textContent = `+ Cadastrar "${termo}"`;
             div.addEventListener('click', async () => {
                 const novo = await aoCriar(termo);
+                fechar();
                 if (novo) {
                     input.value = obterRotulo(novo);
                     input.dataset.id = novo.__id;
-                    fechar();
                     if (aoSelecionar) aoSelecionar(novo);
                 }
             });

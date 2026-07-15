@@ -331,6 +331,32 @@ a {
     padding: 32px;
 }
 
+/* ---------- Início (selo centralizado) ---------- */
+
+.centro-inicio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: calc(100vh - 140px);
+    gap: 18px;
+}
+
+.centro-inicio img.selo {
+    width: 280px;
+    height: 280px;
+    filter: drop-shadow(0 10px 40px var(--sombra));
+}
+
+.centro-inicio h2 {
+    color: var(--dourado-claro);
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
 /* ---------- Cards de menu ---------- */
 
 .grade-cartoes {
@@ -425,6 +451,72 @@ a {
 .combo-item.criar-novo {
     color: var(--dourado-claro);
     font-weight: 600;
+}
+
+/* ---------- Subpainéis e criação rápida aninhada ---------- */
+
+.subpainel {
+    border: 1px dashed var(--borda);
+    border-radius: 8px;
+    padding: 18px;
+    margin-top: 12px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.subpainel h3 {
+    margin-top: 0;
+    color: var(--dourado-claro);
+    font-size: 16px;
+}
+
+.selecao-com-novo {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.selecao-com-novo select {
+    flex: 1;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--dourado-claro);
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    padding: 4px 6px;
+    white-space: nowrap;
+    text-decoration: underline;
+}
+
+.mini-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.mini-form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.mini-form input,
+.mini-form-vertical > input {
+    flex: 1;
+    min-width: 140px;
+    padding: 9px 11px;
+    background: var(--preto-3);
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    color: var(--texto);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
 }
 
 /* ---------- Tabelas ---------- */

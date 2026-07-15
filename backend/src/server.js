@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 
 const paisesRouter = require('./routes/paises');
+const estadosRouter = require('./routes/estados');
 const orientesRouter = require('./routes/orientes');
 const potenciasRouter = require('./routes/potencias');
 const ritosRouter = require('./routes/ritos');
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/paises', paisesRouter);
+app.use('/estados', estadosRouter);
 app.use('/orientes', orientesRouter);
 app.use('/potencias', potenciasRouter);
 app.use('/ritos', ritosRouter);

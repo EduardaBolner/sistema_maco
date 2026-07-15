@@ -13,33 +13,9 @@
     <div class="main">
         <header class="topbar" id="topbar-slot"></header>
         <main class="content">
-            <p style="color: var(--texto-suave); margin-top:0;">Selecione um cadastro para começar.</p>
-
-            <div class="grade-cartoes">
-                <a class="cartao-menu" href="macons-listagem.html">
-                    <div class="icone">&#10022;</div>
-                    <div class="titulo">Maçons</div>
-                </a>
-                <a class="cartao-menu" href="lojas.html">
-                    <div class="icone">&#9651;</div>
-                    <div class="titulo">Lojas</div>
-                </a>
-                <a class="cartao-menu" href="ritos.html">
-                    <div class="icone">&#10013;</div>
-                    <div class="titulo">Ritos</div>
-                </a>
-                <a class="cartao-menu" href="graus.html">
-                    <div class="icone">&#9878;</div>
-                    <div class="titulo">Graus</div>
-                </a>
-                <a class="cartao-menu" href="potencias.html">
-                    <div class="icone">&#9737;</div>
-                    <div class="titulo">Potências</div>
-                </a>
-                <a class="cartao-menu" href="orientes-paises.html">
-                    <div class="icone">&#9789;</div>
-                    <div class="titulo">Oriente / País</div>
-                </a>
+            <div class="centro-inicio">
+                <img class="selo" id="selo-inicio" alt="Selo da Grande Loja Regular do Rio Grande do Sul">
+                <h2>GRANDE LOJA REGULAR DO RIO GRANDE DO SUL</h2>
             </div>
         </main>
     </div>
@@ -51,6 +27,7 @@
 <script>
     exigirAutenticacao();
     renderizarShell({ ativo: 'inicio', titulo: 'Início', breadcrumb: 'Início' });
+    document.getElementById('selo-inicio').src = SELO_BASE64;
 </script>
 </body>
 </html>
