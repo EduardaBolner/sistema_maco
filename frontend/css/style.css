@@ -488,6 +488,9 @@ a {
     font-size: 13px;
     padding: 4px 6px;
     white-space: nowrap;
+}
+
+.btn-link:hover {
     text-decoration: underline;
 }
 
@@ -568,6 +571,9 @@ table.tabela tr:hover td {
     font-family: 'Cinzel', serif;
     font-size: 13px;
     padding: 0;
+}
+
+.acao-link:hover {
     text-decoration: underline;
 }
 
