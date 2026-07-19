@@ -5,15 +5,12 @@ renderizarShell({ ativo: 'orientes', titulo: 'Oriente / Estado / País', breadcr
 const alertaErro = document.getElementById('alerta-erro');
 const alertaSucesso = document.getElementById('alerta-sucesso');
 
+const selectEstado = document.getElementById('select-estado');
+const selectPais = document.getElementById('select-pais');
+
 let paisesCache = [];
 let estadosCache = [];
 let orientesCache = [];
-
-let paisSelecionadoParaEstadoId = null;
-let estadoSelecionadoParaOrienteId = null;
-
-let editandoIdPais = null;
-let editandoIdEstado = null;
 let editandoIdOriente = null;
 
 function mostrarErro(mensagem) {
@@ -28,26 +25,21 @@ function mostrarSucesso(mensagem) {
     alertaSucesso.classList.add('mostrar');
 }
 
-// ---------- Combo: País (usado no cadastro de Estado) ----------
+// ---------- Criação rápida de Estado/País (fallback manual) ----------
 
-configurarCombo({
-    input: document.getElementById('busca-pais-estado'),
-    lista: document.getElementById('lista-pais-estado'),
-    permitirCriar: true,
-    obterRotulo: (item) => item.ds_pais,
-    buscar: async (termo) => {
-        const paises = await apiGet('/paises');
-        return paises
-            .filter(p => p.ds_pais.toLowerCase().includes(termo.toLowerCase()))
-            .map(p => ({ ...p, __id: p.id_pais }));
-    },
-    aoSelecionar: (item) => { paisSelecionadoParaEstadoId = item.__id; },
-    aoCriar: async (termo) => {
+configurarSelecaoComNovo({
+    select: selectPais,
+    botaoNovo: document.getElementById('btn-novo-pais'),
+    miniForm: document.getElementById('mini-pais'),
+    inputNome: document.getElementById('input-novo-pais'),
+    botaoSalvar: document.getElementById('salvar-novo-pais'),
+    valueKey: 'id_pais', labelKey: 'ds_pais',
+    carregarOpcoes: () => apiGet('/paises'),
+    criar: async (nome) => {
         try {
-            const novoPais = await apiPost('/paises', { ds_pais: termo });
-            mostrarSucesso(`País "${novoPais.ds_pais}" cadastrado.`);
+            const novo = await apiPost('/paises', { ds_pais: nome });
             carregarTabelaPaises();
-            return { ...novoPais, __id: novoPais.id_pais };
+            return novo;
         } catch (erro) {
             mostrarErro(erro.message);
             return null;
@@ -55,26 +47,19 @@ configurarCombo({
     }
 });
 
-// ---------- Combo: Estado (usado no cadastro de Oriente) ----------
-
-configurarCombo({
-    input: document.getElementById('busca-estado-oriente'),
-    lista: document.getElementById('lista-estado-oriente'),
-    permitirCriar: true,
-    obterRotulo: (item) => item.ds_estado,
-    buscar: async (termo) => {
-        const estados = await apiGet('/estados');
-        return estados
-            .filter(e => e.ds_estado.toLowerCase().includes(termo.toLowerCase()))
-            .map(e => ({ ...e, __id: e.id_estado }));
-    },
-    aoSelecionar: (item) => { estadoSelecionadoParaOrienteId = item.__id; },
-    aoCriar: async (termo) => {
+configurarSelecaoComNovo({
+    select: selectEstado,
+    botaoNovo: document.getElementById('btn-novo-estado'),
+    miniForm: document.getElementById('mini-estado'),
+    inputNome: document.getElementById('input-novo-estado'),
+    botaoSalvar: document.getElementById('salvar-novo-estado'),
+    valueKey: 'id_estado', labelKey: 'ds_estado',
+    carregarOpcoes: () => apiGet('/estados'),
+    criar: async (nome) => {
         try {
-            const novoEstado = await apiPost('/estados', { ds_estado: termo, id_pais: paisSelecionadoParaEstadoId });
-            mostrarSucesso(`Estado "${novoEstado.ds_estado}" cadastrado.`);
+            const novo = await apiPost('/estados', { ds_estado: nome, id_pais: selectPais.value || null });
             carregarTabelaEstados();
-            return { ...novoEstado, __id: novoEstado.id_estado };
+            return novo;
         } catch (erro) {
             mostrarErro(erro.message);
             return null;
@@ -89,25 +74,25 @@ configurarBuscaLocalizacao({
     lista: document.getElementById('lista-cidade-geo'),
     aoResolver: async (sugestao) => {
         if (!sugestao.pais) {
-            mostrarErro('Essa localização não trouxe País/Estado. Selecione manualmente ao lado.');
+            mostrarErro('Essa localização não trouxe País/Estado. Cadastre manualmente abaixo.');
             return;
         }
         try {
             const pais = await garantirPais(sugestao.pais);
+            popularSelect(selectPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
+            selectPais.value = pais.id_pais;
             carregarTabelaPaises();
 
             if (!sugestao.estado) {
-                document.getElementById('busca-estado-oriente').value = '';
-                estadoSelecionadoParaOrienteId = null;
-                mostrarErro('País identificado, mas sem Estado. Selecione o Estado manualmente ao lado.');
+                mostrarErro('País identificado, mas sem Estado. Selecione ou cadastre o Estado manualmente abaixo.');
                 return;
             }
 
             const estado = await garantirEstado(sugestao.estado, pais.id_pais);
+            popularSelect(selectEstado, await apiGet('/estados'), 'id_estado', 'ds_estado');
+            selectEstado.value = estado.id_estado;
             carregarTabelaEstados();
 
-            estadoSelecionadoParaOrienteId = estado.id_estado;
-            document.getElementById('busca-estado-oriente').value = estado.ds_estado;
             mostrarSucesso(`Localização encontrada: ${estado.ds_estado} / ${pais.ds_pais} (preenchidos automaticamente).`);
         } catch (erro) {
             mostrarErro(erro.message);
@@ -131,8 +116,8 @@ async function carregarTabelaOrientes() {
                 <td>${o.ds_estado || '—'}</td>
                 <td>${o.ds_pais || '—'}</td>
                 <td class="acoes-tabela">
-                    <button type="button" class="acao-link editar" data-tipo="oriente" data-id="${o.id_oriente}">Editar</button>
-                    <button type="button" class="acao-link excluir" data-tipo="oriente" data-id="${o.id_oriente}">Excluir</button>
+                    <button type="button" class="acao-link editar" data-id="${o.id_oriente}">Editar</button>
+                    <button type="button" class="acao-link excluir" data-id="${o.id_oriente}">Excluir</button>
                 </td>
             </tr>
         `).join('');
@@ -154,8 +139,8 @@ async function carregarTabelaEstados() {
                 <td>${e.ds_estado}</td>
                 <td>${e.ds_pais || '—'}</td>
                 <td class="acoes-tabela">
-                    <button type="button" class="acao-link editar" data-tipo="estado" data-id="${e.id_estado}">Editar</button>
-                    <button type="button" class="acao-link excluir" data-tipo="estado" data-id="${e.id_estado}">Excluir</button>
+                    <button type="button" class="acao-link editar" data-id="${e.id_estado}">Editar</button>
+                    <button type="button" class="acao-link excluir" data-id="${e.id_estado}">Excluir</button>
                 </td>
             </tr>
         `).join('');
@@ -176,8 +161,8 @@ async function carregarTabelaPaises() {
             <tr>
                 <td>${p.ds_pais}</td>
                 <td class="acoes-tabela">
-                    <button type="button" class="acao-link editar" data-tipo="pais" data-id="${p.id_pais}">Editar</button>
-                    <button type="button" class="acao-link excluir" data-tipo="pais" data-id="${p.id_pais}">Excluir</button>
+                    <button type="button" class="acao-link editar" data-id="${p.id_pais}">Editar</button>
+                    <button type="button" class="acao-link excluir" data-id="${p.id_pais}">Excluir</button>
                 </td>
             </tr>
         `).join('');
@@ -186,48 +171,12 @@ async function carregarTabelaPaises() {
     }
 }
 
-// ---------- Edição / exclusão ----------
-
-function entrarModoEdicaoPais(pais) {
-    editandoIdPais = pais.id_pais;
-    document.getElementById('ds_pais').value = pais.ds_pais;
-    document.getElementById('titulo-pais').textContent = 'Editar País';
-    document.getElementById('botao-salvar-pais').textContent = 'Salvar edição';
-    document.getElementById('botao-cancelar-pais').hidden = false;
-}
-
-function sairModoEdicaoPais() {
-    editandoIdPais = null;
-    document.getElementById('form-pais').reset();
-    document.getElementById('titulo-pais').textContent = 'Cadastrar País';
-    document.getElementById('botao-salvar-pais').textContent = 'Salvar País';
-    document.getElementById('botao-cancelar-pais').hidden = true;
-}
-
-function entrarModoEdicaoEstado(estado) {
-    editandoIdEstado = estado.id_estado;
-    paisSelecionadoParaEstadoId = estado.id_pais || null;
-    document.getElementById('ds_estado').value = estado.ds_estado;
-    document.getElementById('busca-pais-estado').value = estado.ds_pais || '';
-    document.getElementById('titulo-estado').textContent = 'Editar Estado';
-    document.getElementById('botao-salvar-estado').textContent = 'Salvar edição';
-    document.getElementById('botao-cancelar-estado').hidden = false;
-}
-
-function sairModoEdicaoEstado() {
-    editandoIdEstado = null;
-    paisSelecionadoParaEstadoId = null;
-    document.getElementById('form-estado').reset();
-    document.getElementById('titulo-estado').textContent = 'Cadastrar Estado';
-    document.getElementById('botao-salvar-estado').textContent = 'Salvar Estado';
-    document.getElementById('botao-cancelar-estado').hidden = true;
-}
+// ---------- Oriente: criar / editar / excluir ----------
 
 function entrarModoEdicaoOriente(oriente) {
     editandoIdOriente = oriente.id_oriente;
-    estadoSelecionadoParaOrienteId = oriente.id_estado || null;
     document.getElementById('ds_oriente').value = oriente.ds_oriente;
-    document.getElementById('busca-estado-oriente').value = oriente.ds_estado || '';
+    selectEstado.value = oriente.id_estado || '';
     document.getElementById('titulo-oriente').textContent = 'Editar Oriente';
     document.getElementById('botao-salvar-oriente').textContent = 'Salvar edição';
     document.getElementById('botao-cancelar-oriente').hidden = false;
@@ -235,123 +184,34 @@ function entrarModoEdicaoOriente(oriente) {
 
 function sairModoEdicaoOriente() {
     editandoIdOriente = null;
-    estadoSelecionadoParaOrienteId = null;
     document.getElementById('form-oriente').reset();
     document.getElementById('titulo-oriente').textContent = 'Cadastrar Oriente';
     document.getElementById('botao-salvar-oriente').textContent = 'Salvar Oriente';
     document.getElementById('botao-cancelar-oriente').hidden = true;
 }
 
-async function tratarCliqueAcao(evento, { cache, chaveId, buscar, remover, entrarEdicao, mensagemExcluir }) {
+document.getElementById('botao-cancelar-oriente').addEventListener('click', sairModoEdicaoOriente);
+
+document.getElementById('corpo-tabela-oriente').addEventListener('click', async (evento) => {
     const botaoEditar = evento.target.closest('.editar');
     const botaoExcluir = evento.target.closest('.excluir');
 
     if (botaoEditar) {
-        const item = cache.find(i => i[chaveId] == botaoEditar.dataset.id);
-        if (item) entrarEdicao(item);
-        return true;
+        const oriente = orientesCache.find(o => o.id_oriente == botaoEditar.dataset.id);
+        if (oriente) entrarModoEdicaoOriente(oriente);
+        return;
     }
 
     if (botaoExcluir) {
-        if (!confirm(mensagemExcluir)) return true;
+        if (!confirm('Tem certeza que deseja excluir este Oriente?')) return;
         try {
-            await remover(botaoExcluir.dataset.id);
-            await buscar();
+            await apiDelete(`/orientes/${botaoExcluir.dataset.id}`);
+            mostrarSucesso('Oriente excluído com sucesso.');
+            if (editandoIdOriente == botaoExcluir.dataset.id) sairModoEdicaoOriente();
+            carregarTabelaOrientes();
         } catch (erro) {
             mostrarErro(erro.message);
         }
-        return true;
-    }
-
-    return false;
-}
-
-document.getElementById('corpo-tabela-pais').addEventListener('click', (evento) => {
-    tratarCliqueAcao(evento, {
-        cache: paisesCache,
-        chaveId: 'id_pais',
-        buscar: carregarTabelaPaises,
-        remover: async (id) => {
-            await apiDelete(`/paises/${id}`);
-            mostrarSucesso('País excluído com sucesso.');
-            if (editandoIdPais == id) sairModoEdicaoPais();
-        },
-        entrarEdicao: entrarModoEdicaoPais,
-        mensagemExcluir: 'Tem certeza que deseja excluir este País?'
-    });
-});
-
-document.getElementById('corpo-tabela-estado').addEventListener('click', (evento) => {
-    tratarCliqueAcao(evento, {
-        cache: estadosCache,
-        chaveId: 'id_estado',
-        buscar: carregarTabelaEstados,
-        remover: async (id) => {
-            await apiDelete(`/estados/${id}`);
-            mostrarSucesso('Estado excluído com sucesso.');
-            if (editandoIdEstado == id) sairModoEdicaoEstado();
-        },
-        entrarEdicao: entrarModoEdicaoEstado,
-        mensagemExcluir: 'Tem certeza que deseja excluir este Estado?'
-    });
-});
-
-document.getElementById('corpo-tabela-oriente').addEventListener('click', (evento) => {
-    tratarCliqueAcao(evento, {
-        cache: orientesCache,
-        chaveId: 'id_oriente',
-        buscar: carregarTabelaOrientes,
-        remover: async (id) => {
-            await apiDelete(`/orientes/${id}`);
-            mostrarSucesso('Oriente excluído com sucesso.');
-            if (editandoIdOriente == id) sairModoEdicaoOriente();
-        },
-        entrarEdicao: entrarModoEdicaoOriente,
-        mensagemExcluir: 'Tem certeza que deseja excluir este Oriente?'
-    });
-});
-
-document.getElementById('botao-cancelar-pais').addEventListener('click', sairModoEdicaoPais);
-document.getElementById('botao-cancelar-estado').addEventListener('click', sairModoEdicaoEstado);
-document.getElementById('botao-cancelar-oriente').addEventListener('click', sairModoEdicaoOriente);
-
-// ---------- Formulários ----------
-
-document.getElementById('form-pais').addEventListener('submit', async (evento) => {
-    evento.preventDefault();
-    const ds_pais = document.getElementById('ds_pais').value.trim();
-    if (!ds_pais) return;
-    try {
-        if (editandoIdPais) {
-            await apiPut(`/paises/${editandoIdPais}`, { ds_pais });
-            mostrarSucesso('País atualizado com sucesso.');
-        } else {
-            await apiPost('/paises', { ds_pais });
-            mostrarSucesso('País cadastrado com sucesso.');
-        }
-        sairModoEdicaoPais();
-        carregarTabelaPaises();
-    } catch (erro) {
-        mostrarErro(erro.message);
-    }
-});
-
-document.getElementById('form-estado').addEventListener('submit', async (evento) => {
-    evento.preventDefault();
-    const ds_estado = document.getElementById('ds_estado').value.trim();
-    if (!ds_estado) return;
-    try {
-        if (editandoIdEstado) {
-            await apiPut(`/estados/${editandoIdEstado}`, { ds_estado, id_pais: paisSelecionadoParaEstadoId });
-            mostrarSucesso('Estado atualizado com sucesso.');
-        } else {
-            await apiPost('/estados', { ds_estado, id_pais: paisSelecionadoParaEstadoId });
-            mostrarSucesso('Estado cadastrado com sucesso.');
-        }
-        sairModoEdicaoEstado();
-        carregarTabelaEstados();
-    } catch (erro) {
-        mostrarErro(erro.message);
     }
 });
 
@@ -359,12 +219,13 @@ document.getElementById('form-oriente').addEventListener('submit', async (evento
     evento.preventDefault();
     const ds_oriente = document.getElementById('ds_oriente').value.trim();
     if (!ds_oriente) return;
+    const id_estado = selectEstado.value || null;
     try {
         if (editandoIdOriente) {
-            await apiPut(`/orientes/${editandoIdOriente}`, { ds_oriente, id_estado: estadoSelecionadoParaOrienteId });
+            await apiPut(`/orientes/${editandoIdOriente}`, { ds_oriente, id_estado });
             mostrarSucesso('Oriente atualizado com sucesso.');
         } else {
-            await apiPost('/orientes', { ds_oriente, id_estado: estadoSelecionadoParaOrienteId });
+            await apiPost('/orientes', { ds_oriente, id_estado });
             mostrarSucesso('Oriente cadastrado com sucesso.');
         }
         sairModoEdicaoOriente();
@@ -374,6 +235,131 @@ document.getElementById('form-oriente').addEventListener('submit', async (evento
     }
 });
 
+// ---------- Estado: editar / excluir ----------
+
+const painelEditarEstado = document.getElementById('painel-editar-estado');
+let editandoIdEstado = null;
+
+async function entrarEdicaoEstado(estado) {
+    editandoIdEstado = estado.id_estado;
+    document.getElementById('editar-estado-nome').value = estado.ds_estado;
+    const selectEditarPais = document.getElementById('editar-estado-pais');
+    popularSelect(selectEditarPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
+    selectEditarPais.value = estado.id_pais || '';
+    painelEditarEstado.removeAttribute('hidden');
+}
+
+function sairEdicaoEstado() {
+    editandoIdEstado = null;
+    painelEditarEstado.setAttribute('hidden', '');
+}
+
+document.getElementById('editar-estado-cancelar').addEventListener('click', sairEdicaoEstado);
+
+document.getElementById('editar-estado-salvar').addEventListener('click', async () => {
+    const ds_estado = document.getElementById('editar-estado-nome').value.trim();
+    const id_pais = document.getElementById('editar-estado-pais').value || null;
+    if (!ds_estado) return;
+    try {
+        await apiPut(`/estados/${editandoIdEstado}`, { ds_estado, id_pais });
+        mostrarSucesso('Estado atualizado com sucesso.');
+        sairEdicaoEstado();
+        carregarTabelaEstados();
+        popularSelect(selectEstado, await apiGet('/estados'), 'id_estado', 'ds_estado');
+    } catch (erro) {
+        mostrarErro(erro.message);
+    }
+});
+
+document.getElementById('corpo-tabela-estado').addEventListener('click', async (evento) => {
+    const botaoEditar = evento.target.closest('.editar');
+    const botaoExcluir = evento.target.closest('.excluir');
+
+    if (botaoEditar) {
+        const estado = estadosCache.find(e => e.id_estado == botaoEditar.dataset.id);
+        if (estado) entrarEdicaoEstado(estado);
+        return;
+    }
+
+    if (botaoExcluir) {
+        if (!confirm('Tem certeza que deseja excluir este Estado?')) return;
+        try {
+            await apiDelete(`/estados/${botaoExcluir.dataset.id}`);
+            mostrarSucesso('Estado excluído com sucesso.');
+            if (editandoIdEstado == botaoExcluir.dataset.id) sairEdicaoEstado();
+            carregarTabelaEstados();
+            popularSelect(selectEstado, await apiGet('/estados'), 'id_estado', 'ds_estado');
+        } catch (erro) {
+            mostrarErro(erro.message);
+        }
+    }
+});
+
+// ---------- País: editar / excluir ----------
+
+const painelEditarPais = document.getElementById('painel-editar-pais');
+let editandoIdPais = null;
+
+function entrarEdicaoPais(pais) {
+    editandoIdPais = pais.id_pais;
+    document.getElementById('editar-pais-nome').value = pais.ds_pais;
+    painelEditarPais.removeAttribute('hidden');
+}
+
+function sairEdicaoPais() {
+    editandoIdPais = null;
+    painelEditarPais.setAttribute('hidden', '');
+}
+
+document.getElementById('editar-pais-cancelar').addEventListener('click', sairEdicaoPais);
+
+document.getElementById('editar-pais-salvar').addEventListener('click', async () => {
+    const ds_pais = document.getElementById('editar-pais-nome').value.trim();
+    if (!ds_pais) return;
+    try {
+        await apiPut(`/paises/${editandoIdPais}`, { ds_pais });
+        mostrarSucesso('País atualizado com sucesso.');
+        sairEdicaoPais();
+        carregarTabelaPaises();
+        popularSelect(selectPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
+    } catch (erro) {
+        mostrarErro(erro.message);
+    }
+});
+
+document.getElementById('corpo-tabela-pais').addEventListener('click', async (evento) => {
+    const botaoEditar = evento.target.closest('.editar');
+    const botaoExcluir = evento.target.closest('.excluir');
+
+    if (botaoEditar) {
+        const pais = paisesCache.find(p => p.id_pais == botaoEditar.dataset.id);
+        if (pais) entrarEdicaoPais(pais);
+        return;
+    }
+
+    if (botaoExcluir) {
+        if (!confirm('Tem certeza que deseja excluir este País?')) return;
+        try {
+            await apiDelete(`/paises/${botaoExcluir.dataset.id}`);
+            mostrarSucesso('País excluído com sucesso.');
+            if (editandoIdPais == botaoExcluir.dataset.id) sairEdicaoPais();
+            carregarTabelaPaises();
+            popularSelect(selectPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
+        } catch (erro) {
+            mostrarErro(erro.message);
+        }
+    }
+});
+
+// ---------- Inicialização ----------
+
+async function carregarSelecoesIniciais() {
+    const [estados, paises] = await Promise.all([apiGet('/estados'), apiGet('/paises')]);
+    popularSelect(selectEstado, estados, 'id_estado', 'ds_estado');
+    popularSelect(selectPais, paises, 'id_pais', 'ds_pais');
+}
+
+carregarSelecoesIniciais();
 carregarTabelaOrientes();
 carregarTabelaEstados();
 carregarTabelaPaises();

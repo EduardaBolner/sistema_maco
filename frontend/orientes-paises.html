@@ -18,56 +18,41 @@
             <div class="alerta sucesso" id="alerta-sucesso"></div>
 
             <div class="painel">
-                <h2 id="titulo-pais">Cadastrar País</h2>
-                <form id="form-pais">
-                    <div class="campo">
-                        <label for="ds_pais">Nome do País</label>
-                        <input type="text" id="ds_pais" required>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button type="submit" class="btn" id="botao-salvar-pais">Salvar País</button>
-                        <button type="button" class="btn btn-secundario" id="botao-cancelar-pais" hidden>Cancelar edição</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="painel">
-                <h2 id="titulo-estado">Cadastrar Estado</h2>
-                <form id="form-estado">
-                    <div class="linha-campos">
-                        <div class="campo">
-                            <label for="ds_estado">Nome do Estado</label>
-                            <input type="text" id="ds_estado" required>
-                        </div>
-                        <div class="campo combo">
-                            <label for="busca-pais-estado">País</label>
-                            <input type="text" id="busca-pais-estado" autocomplete="off" placeholder="Buscar ou cadastrar...">
-                            <div class="combo-lista" id="lista-pais-estado"></div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button type="submit" class="btn" id="botao-salvar-estado">Salvar Estado</button>
-                        <button type="button" class="btn btn-secundario" id="botao-cancelar-estado" hidden>Cancelar edição</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="painel">
                 <h2 id="titulo-oriente">Cadastrar Oriente</h2>
                 <form id="form-oriente">
-                    <div class="linha-campos">
-                        <div class="campo combo">
-                            <label for="ds_oriente">Oriente (cidade)</label>
-                            <input type="text" id="ds_oriente" required autocomplete="off" placeholder="Digite para buscar a cidade...">
-                            <div class="combo-lista" id="lista-cidade-geo"></div>
-                            <small style="color: var(--texto-suave); display:block; margin-top:4px;">Busca localizações reais — Estado e País são preenchidos automaticamente ao selecionar.</small>
+                    <div class="campo combo">
+                        <label for="ds_oriente">Oriente (cidade)</label>
+                        <input type="text" id="ds_oriente" required autocomplete="off" placeholder="Digite para buscar a cidade...">
+                        <div class="combo-lista" id="lista-cidade-geo"></div>
+                        <small style="color: var(--texto-suave); display:block; margin-top:4px;">
+                            Busca localizações reais — Estado e País são preenchidos automaticamente ao selecionar.
+                            Se a cidade não for encontrada, cadastre o Estado manualmente abaixo.
+                        </small>
+                    </div>
+
+                    <div class="campo">
+                        <label>Estado</label>
+                        <div class="selecao-com-novo">
+                            <select id="select-estado"><option value="">Selecione...</option></select>
+                            <button type="button" class="btn-link" id="btn-novo-estado">+ Novo</button>
                         </div>
-                        <div class="campo combo">
-                            <label for="busca-estado-oriente">Estado</label>
-                            <input type="text" id="busca-estado-oriente" autocomplete="off" placeholder="Buscar ou cadastrar...">
-                            <div class="combo-lista" id="lista-estado-oriente"></div>
+                        <div class="mini-form-vertical subpainel" id="mini-estado" hidden>
+                            <input type="text" id="input-novo-estado" placeholder="Nome do Estado">
+                            <div class="campo">
+                                <label>País</label>
+                                <div class="selecao-com-novo">
+                                    <select id="select-pais"><option value="">Selecione...</option></select>
+                                    <button type="button" class="btn-link" id="btn-novo-pais">+ Novo</button>
+                                </div>
+                                <div class="mini-form" id="mini-pais" hidden>
+                                    <input type="text" id="input-novo-pais" placeholder="Nome do País">
+                                    <button type="button" class="btn btn-secundario" id="salvar-novo-pais">Salvar</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secundario" id="salvar-novo-estado">Salvar Estado</button>
                         </div>
                     </div>
+
                     <div style="display:flex; gap:10px;">
                         <button type="submit" class="btn" id="botao-salvar-oriente">Salvar Oriente</button>
                         <button type="button" class="btn btn-secundario" id="botao-cancelar-oriente" hidden>Cancelar edição</button>
@@ -89,6 +74,23 @@
 
             <div class="painel">
                 <h2>Estados cadastrados</h2>
+
+                <div class="subpainel" id="painel-editar-estado" hidden>
+                    <h3>Editar Estado</h3>
+                    <div class="campo">
+                        <label for="editar-estado-nome">Nome do Estado</label>
+                        <input type="text" id="editar-estado-nome">
+                    </div>
+                    <div class="campo">
+                        <label for="editar-estado-pais">País</label>
+                        <select id="editar-estado-pais"><option value="">Selecione...</option></select>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="btn" id="editar-estado-salvar">Salvar edição</button>
+                        <button type="button" class="btn btn-secundario" id="editar-estado-cancelar">Cancelar</button>
+                    </div>
+                </div>
+
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
@@ -101,6 +103,19 @@
 
             <div class="painel">
                 <h2>Países cadastrados</h2>
+
+                <div class="subpainel" id="painel-editar-pais" hidden>
+                    <h3>Editar País</h3>
+                    <div class="campo">
+                        <label for="editar-pais-nome">Nome do País</label>
+                        <input type="text" id="editar-pais-nome">
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="btn" id="editar-pais-salvar">Salvar edição</button>
+                        <button type="button" class="btn btn-secundario" id="editar-pais-cancelar">Cancelar</button>
+                    </div>
+                </div>
+
                 <div class="tabela-wrap">
                     <table class="tabela">
                         <thead>
@@ -121,6 +136,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/combo.js"></script>
+<script src="js/selecao-com-novo.js"></script>
 <script src="js/geo.js"></script>
 <script src="js/orientes-paises.js"></script>
 </body>
