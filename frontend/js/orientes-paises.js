@@ -82,6 +82,39 @@ configurarCombo({
     }
 });
 
+// ---------- Busca de localização real (Nominatim) ----------
+
+configurarBuscaLocalizacao({
+    input: document.getElementById('ds_oriente'),
+    lista: document.getElementById('lista-cidade-geo'),
+    aoResolver: async (sugestao) => {
+        if (!sugestao.pais) {
+            mostrarErro('Essa localização não trouxe País/Estado. Selecione manualmente ao lado.');
+            return;
+        }
+        try {
+            const pais = await garantirPais(sugestao.pais);
+            carregarTabelaPaises();
+
+            if (!sugestao.estado) {
+                document.getElementById('busca-estado-oriente').value = '';
+                estadoSelecionadoParaOrienteId = null;
+                mostrarErro('País identificado, mas sem Estado. Selecione o Estado manualmente ao lado.');
+                return;
+            }
+
+            const estado = await garantirEstado(sugestao.estado, pais.id_pais);
+            carregarTabelaEstados();
+
+            estadoSelecionadoParaOrienteId = estado.id_estado;
+            document.getElementById('busca-estado-oriente').value = estado.ds_estado;
+            mostrarSucesso(`Localização encontrada: ${estado.ds_estado} / ${pais.ds_pais} (preenchidos automaticamente).`);
+        } catch (erro) {
+            mostrarErro(erro.message);
+        }
+    }
+});
+
 // ---------- Tabelas ----------
 
 async function carregarTabelaOrientes() {

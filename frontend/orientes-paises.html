@@ -56,9 +56,11 @@
                 <h2 id="titulo-oriente">Cadastrar Oriente</h2>
                 <form id="form-oriente">
                     <div class="linha-campos">
-                        <div class="campo">
+                        <div class="campo combo">
                             <label for="ds_oriente">Oriente (cidade)</label>
-                            <input type="text" id="ds_oriente" required>
+                            <input type="text" id="ds_oriente" required autocomplete="off" placeholder="Digite para buscar a cidade...">
+                            <div class="combo-lista" id="lista-cidade-geo"></div>
+                            <small style="color: var(--texto-suave); display:block; margin-top:4px;">Busca localizações reais — Estado e País são preenchidos automaticamente ao selecionar.</small>
                         </div>
                         <div class="campo combo">
                             <label for="busca-estado-oriente">Estado</label>
@@ -119,6 +121,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/combo.js"></script>
+<script src="js/geo.js"></script>
 <script src="js/orientes-paises.js"></script>
 </body>
 </html>

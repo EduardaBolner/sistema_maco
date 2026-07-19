@@ -86,7 +86,11 @@
                                 <button type="button" class="btn-link" id="btn-novo-oriente">+ Novo</button>
                             </div>
                             <div class="mini-form-vertical" id="mini-oriente" hidden>
-                                <input type="text" id="input-novo-oriente" placeholder="Nome do Oriente (cidade)">
+                                <div class="combo">
+                                    <input type="text" id="input-novo-oriente" placeholder="Nome do Oriente (cidade)" autocomplete="off">
+                                    <div class="combo-lista" id="lista-cidade-geo-loja"></div>
+                                </div>
+                                <small style="color: var(--texto-suave);">Busca localizações reais — Estado e País são preenchidos automaticamente ao selecionar.</small>
 
                                 <div class="campo">
                                     <label>Estado</label>
@@ -184,6 +188,7 @@
 <script src="js/api.js"></script>
 <script src="js/combo.js"></script>
 <script src="js/selecao-com-novo.js"></script>
+<script src="js/geo.js"></script>
 <script src="js/macons-cadastro.js"></script>
 </body>
 </html>

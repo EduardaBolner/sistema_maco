@@ -171,6 +171,37 @@ configurarSelecaoComNovo({
     }
 });
 
+// ---------- Busca de localização real (Nominatim) para o Oriente da Nova Loja ----------
+
+configurarBuscaLocalizacao({
+    input: document.getElementById('input-novo-oriente'),
+    lista: document.getElementById('lista-cidade-geo-loja'),
+    aoResolver: async (sugestao) => {
+        if (!sugestao.pais) {
+            mostrarErro('Essa localização não trouxe País/Estado. Selecione manualmente abaixo.');
+            return;
+        }
+        try {
+            const pais = await garantirPais(sugestao.pais);
+            popularSelect(selectPaisNoEstado, await apiGet('/paises'), 'id_pais', 'ds_pais');
+            selectPaisNoEstado.value = pais.id_pais;
+
+            if (!sugestao.estado) {
+                mostrarErro('País identificado, mas sem Estado. Selecione o Estado manualmente abaixo.');
+                return;
+            }
+
+            const estado = await garantirEstado(sugestao.estado, pais.id_pais);
+            popularSelect(selectEstadoNoOriente, await apiGet('/estados'), 'id_estado', 'ds_estado');
+            selectEstadoNoOriente.value = estado.id_estado;
+
+            mostrarSucesso(`Localização encontrada: ${estado.ds_estado} / ${pais.ds_pais} (preenchidos automaticamente).`);
+        } catch (erro) {
+            mostrarErro(erro.message);
+        }
+    }
+});
+
 async function carregarSelecoesIniciais() {
     const [potencias, ritos, orientes, estados, paises] = await Promise.all([
         apiGet('/potencias'), apiGet('/ritos'), apiGet('/orientes'), apiGet('/estados'), apiGet('/paises')

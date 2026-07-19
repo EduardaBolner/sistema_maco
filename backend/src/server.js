@@ -15,6 +15,7 @@ const ritosRouter = require('./routes/ritos');
 const grausRouter = require('./routes/graus');
 const lojasRouter = require('./routes/lojas');
 const maconsRouter = require('./routes/macons');
+const geoRouter = require('./routes/geo');
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/potencias', exigirAdmin, potenciasRouter);
 app.use('/ritos', exigirAdmin, ritosRouter);
 app.use('/graus', exigirAdmin, grausRouter);
 app.use('/lojas', exigirAdmin, lojasRouter);
+app.use('/geo', exigirAdmin, geoRouter);
 
 app.use((err, req, res, next) => {
     console.error(err);

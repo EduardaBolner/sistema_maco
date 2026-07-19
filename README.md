@@ -117,6 +117,7 @@ Acesse `http://localhost:8080/index.html`.
 | GET/PUT/DELETE | `/macons/:id` | Maçons — GET liberado a qualquer papel; PUT/DELETE só admin. Editar/excluir com CIM duplicado ou vínculos retornam `409`. |
 | GET/POST | `/macons` | Maçons (filtráveis por `?nome=`, `?loja=`, `?cim=`) — GET liberado a qualquer papel autenticado; POST só admin. |
 | GET/POST/PUT/DELETE | `/usuarios` | Acessos ao sistema — vincula um login a um Maçom já cadastrado, com papel `admin` ou `usuario`. Somente admin. |
+| GET | `/geo/autocomplete?input=` | Proxy para o Nominatim (OpenStreetMap) — busca cidades reais e retorna cidade/estado/país estruturados. Somente admin. |
 
 Todas as entidades têm `GET/POST/PUT/DELETE` no mesmo padrão (`/paises`, `/estados`, `/orientes`, `/potencias`, `/ritos`, `/graus`, `/lojas`), sempre restritas a admin. Excluir um registro com vínculos (ex.: um País com Estados cadastrados) retorna `409` com mensagem explicativa em vez de quebrar a integridade do banco.
 
@@ -136,12 +137,12 @@ O vínculo entre um login e um Maçom é feito na tela **Acessos** — não exis
 - Edição e exclusão em toda entidade cadastrada, direto na tabela de cada tela, reaproveitando o formulário de cadastro. Exclusões que quebrariam vínculos são bloqueadas com mensagem clara.
 - Filtragem dependente: ao escolher a Loja no cadastro de Maçom, o campo Grau libera apenas os graus do Rito daquela loja.
 - Criação inline encadeada: no cadastro de Maçom, ao criar uma Loja nova é possível também buscar ou cadastrar na hora sua Potência, Rito e Oriente — e ao criar um Oriente novo, buscar ou cadastrar seu Estado, e ao criar um Estado novo, buscar ou cadastrar seu País. Tudo sem sair do formulário.
+- Autocompletar de cidade real (Nominatim/OpenStreetMap): ao digitar o nome de uma cidade no campo Oriente — tanto na tela dedicada quanto dentro do cadastro de Maçom — o sistema busca a localização real e já cria/vincula automaticamente o Estado e o País corretos. Gratuito, sem chave de API.
 - Quadro de Membros: relatório com todos os Maçons cadastrados e seus vínculos completos (Loja, Rito, Grau, Potência, Oriente, Estado, País).
 - Validação client-side e server-side, com tratamento de erro específico por campo (ex.: CIM duplicado).
 
 ## Pendências para produção
 
-- Autocompletar Oriente/Estado/País a partir do Google Maps (Places/Geocoding) — adiado; requer uma API key do Google Maps Platform.
 - Hospedagem da API e do banco em ambiente gerenciado, com backups.
 - HTTPS e segredos de produção isolados.
 - Listagem/busca nas demais entidades (hoje só Maçons e Lojas têm busca).
