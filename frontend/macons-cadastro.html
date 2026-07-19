@@ -126,9 +126,10 @@
                                 <label for="nova-loja-veneravel">Venerável Mestre</label>
                                 <input type="text" id="nova-loja-veneravel">
                             </div>
-                            <div class="campo">
+                            <div class="campo combo">
                                 <label for="nova-loja-endereco">Endereço</label>
-                                <input type="text" id="nova-loja-endereco">
+                                <input type="text" id="nova-loja-endereco" autocomplete="off" placeholder="Digite para buscar o endereço...">
+                                <div class="combo-lista" id="lista-endereco-geo-loja"></div>
                             </div>
                         </div>
 
@@ -168,9 +169,10 @@
                         </div>
                     </div>
 
-                    <div class="campo">
+                    <div class="campo combo">
                         <label for="ds_endereco">Endereço</label>
-                        <input type="text" id="ds_endereco">
+                        <input type="text" id="ds_endereco" autocomplete="off" placeholder="Digite para buscar o endereço...">
+                        <div class="combo-lista" id="lista-endereco-geo"></div>
                     </div>
 
                     <button type="submit" class="btn" id="botao-salvar-macom">Salvar Maçom</button>

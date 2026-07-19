@@ -49,9 +49,10 @@
                             </select>
                         </div>
                     </div>
-                    <div class="campo">
+                    <div class="campo combo">
                         <label for="ds_endereco">Endereço</label>
-                        <input type="text" id="ds_endereco">
+                        <input type="text" id="ds_endereco" autocomplete="off" placeholder="Digite para buscar o endereço...">
+                        <div class="combo-lista" id="lista-endereco-geo"></div>
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button type="submit" class="btn" id="botao-salvar">Salvar Loja</button>
@@ -90,6 +91,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/selecao-com-novo.js"></script>
+<script src="js/geo.js"></script>
 <script src="js/lojas.js"></script>
 </body>
 </html>

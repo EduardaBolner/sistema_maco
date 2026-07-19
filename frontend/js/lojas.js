@@ -27,6 +27,12 @@ function mostrarSucesso(mensagem) {
     alertaSucesso.classList.add('mostrar');
 }
 
+configurarBuscaLocalizacao({
+    input: document.getElementById('ds_endereco'),
+    lista: document.getElementById('lista-endereco-geo'),
+    obterValorCampo: (sugestao) => sugestao.descricao
+});
+
 async function carregarSelects() {
     try {
         const [potencias, orientes, ritos] = await Promise.all([

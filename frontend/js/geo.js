@@ -17,7 +17,8 @@ async function garantirEstado(nomeEstado, idPais) {
     return apiPost('/estados', { ds_estado: nomeEstado, id_pais: idPais || null });
 }
 
-function configurarBuscaLocalizacao({ input, lista, aoResolver }) {
+function configurarBuscaLocalizacao({ input, lista, aoResolver, obterValorCampo }) {
+    obterValorCampo = obterValorCampo || (sugestao => sugestao.cidade);
     let timeout = null;
 
     function fechar() {
@@ -43,9 +44,9 @@ function configurarBuscaLocalizacao({ input, lista, aoResolver }) {
             div.className = 'combo-item';
             div.textContent = sugestao.descricao;
             div.addEventListener('click', async () => {
-                input.value = sugestao.cidade;
+                input.value = obterValorCampo(sugestao);
                 fechar();
-                await aoResolver(sugestao);
+                if (aoResolver) await aoResolver(sugestao);
             });
             lista.appendChild(div);
         });

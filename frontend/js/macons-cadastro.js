@@ -202,6 +202,20 @@ configurarBuscaLocalizacao({
     }
 });
 
+// ---------- Busca de endereço real (Nominatim) ----------
+
+configurarBuscaLocalizacao({
+    input: document.getElementById('ds_endereco'),
+    lista: document.getElementById('lista-endereco-geo'),
+    obterValorCampo: (sugestao) => sugestao.descricao
+});
+
+configurarBuscaLocalizacao({
+    input: document.getElementById('nova-loja-endereco'),
+    lista: document.getElementById('lista-endereco-geo-loja'),
+    obterValorCampo: (sugestao) => sugestao.descricao
+});
+
 async function carregarSelecoesIniciais() {
     const [potencias, ritos, orientes, estados, paises] = await Promise.all([
         apiGet('/potencias'), apiGet('/ritos'), apiGet('/orientes'), apiGet('/estados'), apiGet('/paises')
