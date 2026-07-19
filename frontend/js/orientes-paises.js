@@ -7,11 +7,17 @@ const alertaSucesso = document.getElementById('alerta-sucesso');
 
 const selectEstado = document.getElementById('select-estado');
 const selectPais = document.getElementById('select-pais');
+const inputNovoEstado = document.getElementById('input-novo-estado');
+const inputNovoPais = document.getElementById('input-novo-pais');
+const miniEstado = document.getElementById('mini-estado');
+const miniPais = document.getElementById('mini-pais');
+const botaoSalvarEstado = document.getElementById('salvar-novo-estado');
+const botaoSalvarPais = document.getElementById('salvar-novo-pais');
 
-let paisesCache = [];
-let estadosCache = [];
 let orientesCache = [];
 let editandoIdOriente = null;
+let editandoIdEstado = null;
+let editandoIdPais = null;
 
 function mostrarErro(mensagem) {
     alertaSucesso.classList.remove('mostrar');
@@ -25,45 +31,136 @@ function mostrarSucesso(mensagem) {
     alertaSucesso.classList.add('mostrar');
 }
 
-// ---------- Criação rápida de Estado/País (fallback manual) ----------
+async function atualizarSelectsEstadoPais() {
+    const [estados, paises] = await Promise.all([apiGet('/estados'), apiGet('/paises')]);
+    popularSelect(selectEstado, estados, 'id_estado', 'ds_estado');
+    popularSelect(selectPais, paises, 'id_pais', 'ds_pais');
+    return { estados, paises };
+}
 
-configurarSelecaoComNovo({
-    select: selectPais,
-    botaoNovo: document.getElementById('btn-novo-pais'),
-    miniForm: document.getElementById('mini-pais'),
-    inputNome: document.getElementById('input-novo-pais'),
-    botaoSalvar: document.getElementById('salvar-novo-pais'),
-    valueKey: 'id_pais', labelKey: 'ds_pais',
-    carregarOpcoes: () => apiGet('/paises'),
-    criar: async (nome) => {
-        try {
-            const novo = await apiPost('/paises', { ds_pais: nome });
-            carregarTabelaPaises();
-            return novo;
-        } catch (erro) {
-            mostrarErro(erro.message);
-            return null;
-        }
+// ---------- País (usado dentro da criação/edição de Estado) ----------
+
+function abrirMiniPaisParaCriar() {
+    editandoIdPais = null;
+    inputNovoPais.value = '';
+    botaoSalvarPais.textContent = 'Salvar';
+    miniPais.removeAttribute('hidden');
+}
+
+document.getElementById('btn-novo-pais').addEventListener('click', () => {
+    if (miniPais.hasAttribute('hidden')) abrirMiniPaisParaCriar();
+    else miniPais.setAttribute('hidden', '');
+});
+
+document.getElementById('btn-editar-pais').addEventListener('click', async () => {
+    const id = selectPais.value;
+    if (!id) { mostrarErro('Selecione um País para editar.'); return; }
+    const paises = await apiGet('/paises');
+    const pais = paises.find(p => p.id_pais == id);
+    if (!pais) return;
+    editandoIdPais = pais.id_pais;
+    inputNovoPais.value = pais.ds_pais;
+    botaoSalvarPais.textContent = 'Salvar edição';
+    miniPais.removeAttribute('hidden');
+});
+
+document.getElementById('btn-excluir-pais').addEventListener('click', async () => {
+    const id = selectPais.value;
+    if (!id) { mostrarErro('Selecione um País para excluir.'); return; }
+    if (!confirm('Tem certeza que deseja excluir este País?')) return;
+    try {
+        await apiDelete(`/paises/${id}`);
+        mostrarSucesso('País excluído com sucesso.');
+        await atualizarSelectsEstadoPais();
+        carregarTabelaOrientes();
+    } catch (erro) {
+        mostrarErro(erro.message);
     }
 });
 
-configurarSelecaoComNovo({
-    select: selectEstado,
-    botaoNovo: document.getElementById('btn-novo-estado'),
-    miniForm: document.getElementById('mini-estado'),
-    inputNome: document.getElementById('input-novo-estado'),
-    botaoSalvar: document.getElementById('salvar-novo-estado'),
-    valueKey: 'id_estado', labelKey: 'ds_estado',
-    carregarOpcoes: () => apiGet('/estados'),
-    criar: async (nome) => {
-        try {
-            const novo = await apiPost('/estados', { ds_estado: nome, id_pais: selectPais.value || null });
-            carregarTabelaEstados();
-            return novo;
-        } catch (erro) {
-            mostrarErro(erro.message);
-            return null;
+botaoSalvarPais.addEventListener('click', async () => {
+    const nome = inputNovoPais.value.trim();
+    if (!nome) return;
+    try {
+        let pais;
+        if (editandoIdPais) {
+            pais = await apiPut(`/paises/${editandoIdPais}`, { ds_pais: nome });
+            mostrarSucesso('País atualizado com sucesso.');
+        } else {
+            pais = await apiPost('/paises', { ds_pais: nome });
+            mostrarSucesso('País cadastrado com sucesso.');
         }
+        await atualizarSelectsEstadoPais();
+        selectPais.value = pais.id_pais;
+        miniPais.setAttribute('hidden', '');
+        editandoIdPais = null;
+        carregarTabelaOrientes();
+    } catch (erro) {
+        mostrarErro(erro.message);
+    }
+});
+
+// ---------- Estado (usado na criação/edição do Oriente) ----------
+
+function abrirMiniEstadoParaCriar() {
+    editandoIdEstado = null;
+    inputNovoEstado.value = '';
+    selectPais.value = '';
+    botaoSalvarEstado.textContent = 'Salvar Estado';
+    miniEstado.removeAttribute('hidden');
+}
+
+document.getElementById('btn-novo-estado').addEventListener('click', () => {
+    if (miniEstado.hasAttribute('hidden')) abrirMiniEstadoParaCriar();
+    else miniEstado.setAttribute('hidden', '');
+});
+
+document.getElementById('btn-editar-estado').addEventListener('click', async () => {
+    const id = selectEstado.value;
+    if (!id) { mostrarErro('Selecione um Estado para editar.'); return; }
+    const estados = await apiGet('/estados');
+    const estado = estados.find(e => e.id_estado == id);
+    if (!estado) return;
+    editandoIdEstado = estado.id_estado;
+    inputNovoEstado.value = estado.ds_estado;
+    selectPais.value = estado.id_pais || '';
+    botaoSalvarEstado.textContent = 'Salvar edição do Estado';
+    miniEstado.removeAttribute('hidden');
+});
+
+document.getElementById('btn-excluir-estado').addEventListener('click', async () => {
+    const id = selectEstado.value;
+    if (!id) { mostrarErro('Selecione um Estado para excluir.'); return; }
+    if (!confirm('Tem certeza que deseja excluir este Estado?')) return;
+    try {
+        await apiDelete(`/estados/${id}`);
+        mostrarSucesso('Estado excluído com sucesso.');
+        await atualizarSelectsEstadoPais();
+        carregarTabelaOrientes();
+    } catch (erro) {
+        mostrarErro(erro.message);
+    }
+});
+
+botaoSalvarEstado.addEventListener('click', async () => {
+    const nome = inputNovoEstado.value.trim();
+    if (!nome) return;
+    try {
+        let estado;
+        if (editandoIdEstado) {
+            estado = await apiPut(`/estados/${editandoIdEstado}`, { ds_estado: nome, id_pais: selectPais.value || null });
+            mostrarSucesso('Estado atualizado com sucesso.');
+        } else {
+            estado = await apiPost('/estados', { ds_estado: nome, id_pais: selectPais.value || null });
+            mostrarSucesso('Estado cadastrado com sucesso.');
+        }
+        await atualizarSelectsEstadoPais();
+        selectEstado.value = estado.id_estado;
+        miniEstado.setAttribute('hidden', '');
+        editandoIdEstado = null;
+        carregarTabelaOrientes();
+    } catch (erro) {
+        mostrarErro(erro.message);
     }
 });
 
@@ -79,19 +176,17 @@ configurarBuscaLocalizacao({
         }
         try {
             const pais = await garantirPais(sugestao.pais);
-            popularSelect(selectPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
-            selectPais.value = pais.id_pais;
-            carregarTabelaPaises();
 
             if (!sugestao.estado) {
+                await atualizarSelectsEstadoPais();
+                selectPais.value = pais.id_pais;
                 mostrarErro('País identificado, mas sem Estado. Selecione ou cadastre o Estado manualmente abaixo.');
                 return;
             }
 
             const estado = await garantirEstado(sugestao.estado, pais.id_pais);
-            popularSelect(selectEstado, await apiGet('/estados'), 'id_estado', 'ds_estado');
+            await atualizarSelectsEstadoPais();
             selectEstado.value = estado.id_estado;
-            carregarTabelaEstados();
 
             mostrarSucesso(`Localização encontrada: ${estado.ds_estado} / ${pais.ds_pais} (preenchidos automaticamente).`);
         } catch (erro) {
@@ -100,7 +195,7 @@ configurarBuscaLocalizacao({
     }
 });
 
-// ---------- Tabelas ----------
+// ---------- Oriente: tabela / criar / editar / excluir ----------
 
 async function carregarTabelaOrientes() {
     const corpo = document.getElementById('corpo-tabela-oriente');
@@ -125,53 +220,6 @@ async function carregarTabelaOrientes() {
         mostrarErro('Não foi possível carregar os orientes. Verifique se a API está em execução.');
     }
 }
-
-async function carregarTabelaEstados() {
-    const corpo = document.getElementById('corpo-tabela-estado');
-    try {
-        estadosCache = await apiGet('/estados');
-        if (!estadosCache.length) {
-            corpo.innerHTML = `<tr><td colspan="3" class="vazio">Nenhum estado cadastrado</td></tr>`;
-            return;
-        }
-        corpo.innerHTML = estadosCache.map(e => `
-            <tr>
-                <td>${e.ds_estado}</td>
-                <td>${e.ds_pais || '—'}</td>
-                <td class="acoes-tabela">
-                    <button type="button" class="acao-link editar" data-id="${e.id_estado}">Editar</button>
-                    <button type="button" class="acao-link excluir" data-id="${e.id_estado}">Excluir</button>
-                </td>
-            </tr>
-        `).join('');
-    } catch (erro) {
-        mostrarErro('Não foi possível carregar os estados.');
-    }
-}
-
-async function carregarTabelaPaises() {
-    const corpo = document.getElementById('corpo-tabela-pais');
-    try {
-        paisesCache = await apiGet('/paises');
-        if (!paisesCache.length) {
-            corpo.innerHTML = `<tr><td colspan="2" class="vazio">Nenhum país cadastrado</td></tr>`;
-            return;
-        }
-        corpo.innerHTML = paisesCache.map(p => `
-            <tr>
-                <td>${p.ds_pais}</td>
-                <td class="acoes-tabela">
-                    <button type="button" class="acao-link editar" data-id="${p.id_pais}">Editar</button>
-                    <button type="button" class="acao-link excluir" data-id="${p.id_pais}">Excluir</button>
-                </td>
-            </tr>
-        `).join('');
-    } catch (erro) {
-        mostrarErro('Não foi possível carregar os países.');
-    }
-}
-
-// ---------- Oriente: criar / editar / excluir ----------
 
 function entrarModoEdicaoOriente(oriente) {
     editandoIdOriente = oriente.id_oriente;
@@ -235,131 +283,7 @@ document.getElementById('form-oriente').addEventListener('submit', async (evento
     }
 });
 
-// ---------- Estado: editar / excluir ----------
-
-const painelEditarEstado = document.getElementById('painel-editar-estado');
-let editandoIdEstado = null;
-
-async function entrarEdicaoEstado(estado) {
-    editandoIdEstado = estado.id_estado;
-    document.getElementById('editar-estado-nome').value = estado.ds_estado;
-    const selectEditarPais = document.getElementById('editar-estado-pais');
-    popularSelect(selectEditarPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
-    selectEditarPais.value = estado.id_pais || '';
-    painelEditarEstado.removeAttribute('hidden');
-}
-
-function sairEdicaoEstado() {
-    editandoIdEstado = null;
-    painelEditarEstado.setAttribute('hidden', '');
-}
-
-document.getElementById('editar-estado-cancelar').addEventListener('click', sairEdicaoEstado);
-
-document.getElementById('editar-estado-salvar').addEventListener('click', async () => {
-    const ds_estado = document.getElementById('editar-estado-nome').value.trim();
-    const id_pais = document.getElementById('editar-estado-pais').value || null;
-    if (!ds_estado) return;
-    try {
-        await apiPut(`/estados/${editandoIdEstado}`, { ds_estado, id_pais });
-        mostrarSucesso('Estado atualizado com sucesso.');
-        sairEdicaoEstado();
-        carregarTabelaEstados();
-        popularSelect(selectEstado, await apiGet('/estados'), 'id_estado', 'ds_estado');
-    } catch (erro) {
-        mostrarErro(erro.message);
-    }
-});
-
-document.getElementById('corpo-tabela-estado').addEventListener('click', async (evento) => {
-    const botaoEditar = evento.target.closest('.editar');
-    const botaoExcluir = evento.target.closest('.excluir');
-
-    if (botaoEditar) {
-        const estado = estadosCache.find(e => e.id_estado == botaoEditar.dataset.id);
-        if (estado) entrarEdicaoEstado(estado);
-        return;
-    }
-
-    if (botaoExcluir) {
-        if (!confirm('Tem certeza que deseja excluir este Estado?')) return;
-        try {
-            await apiDelete(`/estados/${botaoExcluir.dataset.id}`);
-            mostrarSucesso('Estado excluído com sucesso.');
-            if (editandoIdEstado == botaoExcluir.dataset.id) sairEdicaoEstado();
-            carregarTabelaEstados();
-            popularSelect(selectEstado, await apiGet('/estados'), 'id_estado', 'ds_estado');
-        } catch (erro) {
-            mostrarErro(erro.message);
-        }
-    }
-});
-
-// ---------- País: editar / excluir ----------
-
-const painelEditarPais = document.getElementById('painel-editar-pais');
-let editandoIdPais = null;
-
-function entrarEdicaoPais(pais) {
-    editandoIdPais = pais.id_pais;
-    document.getElementById('editar-pais-nome').value = pais.ds_pais;
-    painelEditarPais.removeAttribute('hidden');
-}
-
-function sairEdicaoPais() {
-    editandoIdPais = null;
-    painelEditarPais.setAttribute('hidden', '');
-}
-
-document.getElementById('editar-pais-cancelar').addEventListener('click', sairEdicaoPais);
-
-document.getElementById('editar-pais-salvar').addEventListener('click', async () => {
-    const ds_pais = document.getElementById('editar-pais-nome').value.trim();
-    if (!ds_pais) return;
-    try {
-        await apiPut(`/paises/${editandoIdPais}`, { ds_pais });
-        mostrarSucesso('País atualizado com sucesso.');
-        sairEdicaoPais();
-        carregarTabelaPaises();
-        popularSelect(selectPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
-    } catch (erro) {
-        mostrarErro(erro.message);
-    }
-});
-
-document.getElementById('corpo-tabela-pais').addEventListener('click', async (evento) => {
-    const botaoEditar = evento.target.closest('.editar');
-    const botaoExcluir = evento.target.closest('.excluir');
-
-    if (botaoEditar) {
-        const pais = paisesCache.find(p => p.id_pais == botaoEditar.dataset.id);
-        if (pais) entrarEdicaoPais(pais);
-        return;
-    }
-
-    if (botaoExcluir) {
-        if (!confirm('Tem certeza que deseja excluir este País?')) return;
-        try {
-            await apiDelete(`/paises/${botaoExcluir.dataset.id}`);
-            mostrarSucesso('País excluído com sucesso.');
-            if (editandoIdPais == botaoExcluir.dataset.id) sairEdicaoPais();
-            carregarTabelaPaises();
-            popularSelect(selectPais, await apiGet('/paises'), 'id_pais', 'ds_pais');
-        } catch (erro) {
-            mostrarErro(erro.message);
-        }
-    }
-});
-
 // ---------- Inicialização ----------
 
-async function carregarSelecoesIniciais() {
-    const [estados, paises] = await Promise.all([apiGet('/estados'), apiGet('/paises')]);
-    popularSelect(selectEstado, estados, 'id_estado', 'ds_estado');
-    popularSelect(selectPais, paises, 'id_pais', 'ds_pais');
-}
-
-carregarSelecoesIniciais();
+atualizarSelectsEstadoPais();
 carregarTabelaOrientes();
-carregarTabelaEstados();
-carregarTabelaPaises();
